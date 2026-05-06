@@ -3,6 +3,7 @@
  * @author Joas Schilling <nickvergessen@owncloud.com>
  *
  * @copyright Copyright (c) 2016, ownCloud, Inc.
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -458,7 +459,7 @@ class GroupHelperTest extends TestCase {
 	 * @param array $openGroupAfter
 	 * @param Collection $createCollection
 	 */
-	public function testAddActivity(array $activity, array $subjectParams, array $openGroup, $getGroupKey, $openGroupKey, $expectedActivities, array $openGroupAfter, Collection $createCollection = null) {
+	public function testAddActivity(array $activity, array $subjectParams, array $openGroup, $getGroupKey, $openGroupKey, $expectedActivities, array $openGroupAfter, ?Collection $createCollection = null) {
 		$event = $this->getMockBuilder('OCP\Activity\IEvent')
 			->disableOriginalConstructor()
 			->getMock();

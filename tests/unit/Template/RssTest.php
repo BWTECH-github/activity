@@ -3,6 +3,7 @@
  * @author Joas Schilling <nickvergessen@owncloud.com>
  *
  * @copyright Copyright (c) 2016, ownCloud, Inc.
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -27,6 +28,10 @@ use OCP\AppFramework\Http\TemplateResponse;
 class RssTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
+	}
+
+	protected function normalizeLineEndings($value) {
+		return \str_replace("\r\n", "\n", $value);
 	}
 
 	public function dataEmpty() {
@@ -67,7 +72,7 @@ class RssTest extends TestCase {
 			. "\n" . '		<atom:link href="' . $link . '" rel="self" type="application/rss+xml" />'
 			. "\n" . '	</channel>'
 			. "\n" . '</rss>' . "\n",
-			$template->render()
+			$this->normalizeLineEndings($template->render())
 		);
 	}
 
@@ -123,7 +128,7 @@ class RssTest extends TestCase {
 			'description'	=> 'Desc',
 			'activities'	=> $activities,
 		], '');
-		$rendered = $template->render();
+		$rendered = $this->normalizeLineEndings($template->render());
 
 		$prefixStub = '<?xml version="1.0" encoding="UTF-8"?>'
 			. "\n" . '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">'

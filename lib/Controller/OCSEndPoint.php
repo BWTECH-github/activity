@@ -3,6 +3,7 @@
  * @author Joas Schilling <nickvergessen@owncloud.com>
  *
  * @copyright Copyright (c) 2016, ownCloud, Inc.
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -322,7 +323,7 @@ class OCSEndPoint {
 					], '', '&');
 
 					$preview['source'] = $this->urlGenerator->linkTo('', 'remote.php')
-						. '/dav/files/' . \rawurlencode($this->user) . \OCP\Util::encodePath($info['path'])
+						. '/dav/files/' . \rawurlencode((string) $this->user) . \OCP\Util::encodePath($info['path'])
 						. "?$query";
 				} else {
 					$preview['source'] = $this->urlGenerator->linkToRoute('core_ajax_preview', [

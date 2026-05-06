@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- Modified by BW-Tech GmbH for owncloud.online (PHP 8.4). -->
 <info>
   <id>activity</id>
   <name>Activity</name>
@@ -12,9 +13,11 @@ For users with lots of activity it is possible to limit the Activity stream to '
 
 And there you have it - a complete overview of all file and folder activities in your ownCloud with the additional ability to receive activity notifications via email in a time interval of your choice.
 Never again miss an important event related to content in ownCloud and always be up-to-date on all activities of your files and folders.
+
+This is a PHP 8.4 fork maintained by BW-Tech GmbH for owncloud.online.
   </description>
   <licence>AGPL</licence>
-  <author>Thomas Müller, Frank Karlitschek, Joas Schilling, Tom Needham, Vincent Petry</author>
+  <author>ownCloud contributors, modified by BW-Tech GmbH</author>
   <version>2.8.0</version>
   <default_enable/>
   <types>
@@ -24,14 +27,14 @@ Never again miss an important event related to content in ownCloud and always be
   <documentation>
     <admin>https://doc.owncloud.com/server/latest/admin_manual/configuration_server/activity_configuration.html</admin>
   </documentation>
-  <website>https://github.com/owncloud/activity/</website>
-  <bugs>https://github.com/owncloud/activity/issues</bugs>
-  <repository type="git">https://github.com/owncloud/activity.git</repository>
+  <website>https://bw.tech</website>
+  <bugs>https://github.com/GrossLukas/activity/issues</bugs>
+  <repository type="git">https://github.com/GrossLukas/activity.git</repository>
   <screenshot>https://raw.githubusercontent.com/owncloud/screenshots/68550c2b7c53e6309132ca1c7b177adca976db0b/activity/activity.png</screenshot>
   <category>tools</category>
   <dependencies>
-    <owncloud min-version="11" max-version="11" />
-    <php min-version="8.3" />
+    <owncloud min-version="11" max-version="11.99" />
+    <php min-version="8.4" />
   </dependencies>
   <background-jobs>
     <job>OCA\Activity\BackgroundJob\EmailNotification</job>

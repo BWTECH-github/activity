@@ -3,6 +3,7 @@
  * @author Joas Schilling <nickvergessen@owncloud.com>
  *
  * @copyright Copyright (c) 2016, ownCloud, Inc.
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -41,6 +42,7 @@ class PlainTextParser {
 	 * @return string
 	 */
 	public function parseMessage($message) {
+		$message = (string) $message;
 		$message = $this->parseCollections($message);
 		$message = $this->parseParameters($message);
 		return $message;

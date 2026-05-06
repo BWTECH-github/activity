@@ -3,6 +3,7 @@
  * @author Joas Schilling <nickvergessen@owncloud.com>
  *
  * @copyright Copyright (c) 2016, ownCloud, Inc.
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -49,7 +50,7 @@ class ExpireActivitiesTest extends TestCase {
 	 * @param Data $data
 	 * @param IConfig $config
 	 */
-	public function testExecute(Data $data = null, IConfig $config = null) {
+	public function testExecute(?Data $data = null, ?IConfig $config = null) {
 		$backgroundJob = new ExpireActivities($data, $config);
 
 		$jobList = $this->createMock('\OCP\BackgroundJob\IJobList');

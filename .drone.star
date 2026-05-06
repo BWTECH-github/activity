@@ -1,10 +1,12 @@
+# Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 BANST_AWS_CLI = "banst/awscli"
 INBUCKET_INBUCKET = "inbucket/inbucket"
 MINIO_MC = "minio/mc:RELEASE.2020-12-18T10-53-53Z"
 OC_CI_ALPINE = "owncloudci/alpine:latest"
 OC_CI_BAZEL_BUILDIFIER = "owncloudci/bazel-buildifier"
 OC_CI_CEPH = "owncloudci/ceph:tag-build-master-jewel-ubuntu-16.04"
-OC_CI_CORE = "owncloudci/core:php83"
+OC_CI_CORE = "owncloudci/core:php84"
 OC_CI_DRONE_SKIP_PIPELINE = "owncloudci/drone-skip-pipeline"
 OC_CI_NODEJS = "owncloudci/nodejs:%s"
 OC_CI_ORACLE_XE = "owncloudci/oracle-xe:latest"
@@ -21,7 +23,7 @@ SELENIUM_STANDALONE_CHROME_DEBUG = "selenium/standalone-chrome-debug:3.141.59-ox
 SELENIUM_STANDALONE_FIREFOX_DEBUG = "selenium/standalone-firefox-debug:3.8.1"
 SONARSOURCE_SONAR_SCANNER_CLI = "sonarsource/sonar-scanner-cli"
 
-DEFAULT_PHP_VERSION = "8.3"
+DEFAULT_PHP_VERSION = "8.4"
 DEFAULT_NODEJS_VERSION = "14"
 
 # minio mc environment variables
@@ -795,10 +797,10 @@ def phpTests(ctx, testType, withCoverage):
             else:
                 command = "make test-php-integration"
 
-            # Get the first 3 characters of the PHP version (7.4 or 8.0 etc)
+            # Get the first 3 characters of the PHP version (8.4 etc)
             # And use that for constructing the pipeline name
             # That helps shorten pipeline names when using owncloud-ci images
-            # that have longer names like 7.4-ubuntu20.04
+            # that have longer names like 8.4-ubuntu24.04
             phpVersionForPipelineName = phpVersion[0:3]
 
             for server in params["servers"]:
@@ -1074,10 +1076,10 @@ def acceptance(ctx):
                 name = "unknown"
                 phpVersionForDocker = testConfig["phpVersion"]
 
-                # Get the first 3 characters of the PHP version (7.4 or 8.0 etc)
+                # Get the first 3 characters of the PHP version (8.4 etc)
                 # And use that for constructing the pipeline name
                 # That helps shorten pipeline names when using owncloud-ci images
-                # that have longer names like 7.4-ubuntu20.04
+                # that have longer names like 8.4-ubuntu24.04
                 phpVersionForPipelineName = phpVersionForDocker[0:3]
                 if isWebUI or isAPI or isCLI:
                     esString = "-es" + testConfig["esVersion"] if testConfig["esVersion"] != "none" else ""

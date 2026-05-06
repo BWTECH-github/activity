@@ -1,5 +1,7 @@
 name: CI
 
+# Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 on:
   push:
     branches:
@@ -19,7 +21,7 @@ concurrency:
 
 env:
   APP_NAME: activity
-  PHP_VERSIONS: '["8.3"]'
+  PHP_VERSIONS: '["8.4"]'
 
 jobs:
   get-vars:
@@ -63,7 +65,7 @@ jobs:
     uses: owncloud/reusable-workflows/.github/workflows/js-unit.yml@main
     with:
       app-name: ${{ needs.get-vars.outputs.app-name }}
-      php-version: '8.3'
+      php-version: '8.4'
 
   acceptance-api:
     name: API acceptance tests
