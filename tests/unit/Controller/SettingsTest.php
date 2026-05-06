@@ -4,6 +4,7 @@
  * @author Lukas Reschke <lukas@owncloud.com>
  *
  * @copyright Copyright (c) 2016, ownCloud, Inc.
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -223,7 +224,7 @@ class SettingsTest extends TestCase {
 		$this->assertStringContainsString('<label for="NotificationTestTypeShared_email">', $renderedResponse);
 		$this->assertStringContainsString('<label for="NotificationTestTypeShared_stream">', $renderedResponse);
 
-		$cleanedResponse = \str_replace(["\n", "\t"], ' ', $renderedResponse);
+		$cleanedResponse = \str_replace(["\r", "\n", "\t"], ' ', $renderedResponse);
 		while (\strpos($cleanedResponse, '  ') !== false) {
 			$cleanedResponse = \str_replace('  ', ' ', $cleanedResponse);
 		}
@@ -231,7 +232,7 @@ class SettingsTest extends TestCase {
 		$this->assertStringContainsString('<input type="checkbox" id="NotificationTestTypeShared2_stream" name="NotificationTestTypeShared2_stream" value="1" class="NotificationTestTypeShared2 stream checkbox" disabled="disabled" />', $cleanedResponse);
 
 		// Description of the type
-		$cleanedResponse = \str_replace(["\n", "\t"], '', $renderedResponse);
+		$cleanedResponse = \str_replace(["\r", "\n", "\t"], '', $renderedResponse);
 		$this->assertStringContainsString('<td class="activity_select_group" data-select-group="NotificationTestTypeShared">Share description</td>', $cleanedResponse);
 	}
 

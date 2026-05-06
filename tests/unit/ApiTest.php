@@ -3,6 +3,7 @@
  * @author Joas Schilling <nickvergessen@owncloud.com>
  *
  * @copyright Copyright (c) 2016, ownCloud, Inc.
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -173,8 +174,8 @@ class ApiTest extends TestCase {
 
 		$activityManager = new \OC\Activity\Manager(
 			$this->createMock('OCP\IRequest'),
-			$this->createMock('OCP\IUserSession'),
-			$this->createMock('OCP\IConfig')
+			$this->createMock('OCP\IConfig'),
+			$this->createMock('OCP\IUserSession')
 		);
 		$activityManager->registerExtension(function () {
 			return new Extension(\OCP\Util::getL10N('activity', 'en'), $this->createMock('\OCP\IURLGenerator'));

@@ -3,6 +3,7 @@
  * @author Patrick Jahns <github@patrickjahns.de>
  *
  * @copyright Copyright (c) 2018, ownCloud GmbH
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
  * @license GPL-2.0
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,11 +24,11 @@
 
 return [
 
-	// Supported values: '7.2', '7.3', '7.4', '8.0', null.
+	// Supported values: '8.4', null.
 	// If this is set to null,
 	// then Phan assumes the PHP version which is closest to the minor version
 	// of the php executable used to execute phan.
-	'target_php_version' => null,
+	'target_php_version' => '8.4',
 
 	// A list of directories that should be parsed for class and
 	// method information. After excluding the directories

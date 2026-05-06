@@ -1,7 +1,10 @@
 {
+    "description": "Behat tooling for owncloud.online Activity. Modified by BW-Tech GmbH (PHP 8.4).",
+    "license": "AGPL-3.0-only",
+    "modified-by": "BW-Tech GmbH",
     "config" : {
         "platform": {
-            "php": "7.4"
+            "php": "8.4"
         }
     },
     "require": {
