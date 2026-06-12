@@ -4,6 +4,7 @@
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  *
  * @copyright Copyright (c) 2016, ownCloud, Inc.
+ * Modified by BW-Tech GmbH
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -63,7 +64,10 @@ class Consumer implements IConsumer {
 		$emailSetting = ($emailSetting) ? $this->userSettings->getUserSetting($event->getAffectedUser(), 'setting', 'batchtime') : false;
 
 		$types = $this->data->getNotificationTypes($this->l10nFactory->get('activity'));
-		$typeData = $types[$event->getType()];
+		// Extensions dürfen Typen nutzen, die sie nicht über getNotificationTypes
+		// registrieren (z.B. announcementcenter: nicht abwählbar) — unter PHP 8
+		// wäre der direkte Zugriff eine "Undefined array key"-Warnung pro Event.
+		$typeData = $types[$event->getType()] ?? null;
 
 		// User is not the author or wants to see their own actions
 		$createStream = !$selfAction || $this->userSettings->getUserSetting($event->getAffectedUser(), 'setting', 'self');
