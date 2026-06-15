@@ -27,13 +27,13 @@
 
 	<div id="app-settings">
 		<div id="app-settings-header">
-			<button class="settings-button" data-apps-slide-toggle="#app-settings-content"></button>
+			<button class="settings-button" data-apps-slide-toggle="#app-settings-content" aria-label="<?php p($l->t('Settings')); ?>" title="<?php p($l->t('Settings')); ?>"></button>
 		</div>
 
 		<div id="app-settings-content">
 			<input type="checkbox"<?php if ($_['rssLink']): ?> checked="checked"<?php endif; ?> id="enable_rss" class="checkbox" />
 			<label for="enable_rss"><?php p($l->t('Enable RSS feed'));?></label>
-			<input id="rssurl"<?php if (!$_['rssLink']): ?> class="hidden"<?php endif; ?> type="text" readonly="readonly" value="<?php p($_['rssLink']); ?>" />
+			<input id="rssurl"<?php if (!$_['rssLink']): ?> class="hidden"<?php endif; ?> type="text" readonly="readonly" aria-label="<?php p($l->t('RSS feed URL')); ?>" value="<?php p($_['rssLink']); ?>" />
 		</div>
 	</div>
 </div>
