@@ -16,7 +16,7 @@ style('activity', 'settings');
 		<thead>
 			<tr>
 				<?php foreach ($_['methods'] as $method => $methodName): ?>
-				<th class="small activity_select_group" data-select-group="<?php p($method) ?>">
+				<th class="small activity_select_group" scope="col" data-select-group="<?php p($method) ?>">
 					<?php p($l->t($methodName)); ?>
 				</th>
 				<?php endforeach; ?>
@@ -32,7 +32,8 @@ style('activity', 'settings');
 						value="1" class="<?php p($activity) ?> <?php p($method) ?> checkbox"
 						<?php if (!\in_array($method, $data['methods'])): ?> disabled="disabled"<?php endif; ?>
 						<?php if ($data[$method]): ?> checked="checked"<?php endif; ?> />
-					<label for="<?php p($activity) ?>_<?php p($method) ?>">
+					<label for="<?php p($activity) ?>_<?php p($method) ?>" class="hidden-visually">
+						<?php p($l->t('%1$s via %2$s', [\strip_tags($data['desc']), $methodName])); ?>
 					</label>
 				</td>
 				<?php endforeach; ?>
