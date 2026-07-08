@@ -75,6 +75,25 @@ class FilesHooks {
 	/** @var array */
 	protected $renameInfo = [];
 
+	/** @var int Obergrenze gecachter Ordner — schützt langlaufende occ-/Cron-Prozesse vor unbegrenztem Wachstum */
+	public const FOLDER_USER_PATHS_CACHE_MAX = 512;
+
+	/**
+	 * Request-lokaler Cache: [$uidOwner][$folderPath] => "username => path"-Map
+	 * der Nutzer, die Zugriff auf den Ordner haben (inkl. Owner).
+	 *
+	 * Bei Masse-Uploads landen viele Dateien im selben Zielordner; der teure
+	 * Share-Lookup über die gesamte Eltern-Hierarchie (ein SELECT-Paket pro
+	 * Ordnerebene in Share::getUsersSharingFile) muss dann nur einmal pro
+	 * Ordner statt einmal pro Datei laufen. Share-Änderungen durch parallele
+	 * Requests während eines laufenden Uploads werden bewusst nicht gesehen
+	 * (Cache lebt nur für diesen Request); Änderungen im eigenen Request
+	 * invalidieren über flushFolderUserPathsCache().
+	 *
+	 * @var array
+	 */
+	protected $folderUserPathsCache = [];
+
 	/**
 	 * Constructor
 	 *
@@ -132,6 +151,9 @@ class FilesHooks {
 	 * @param string $path Path of the file that has been deleted
 	 */
 	public function fileDelete($path) {
+		// Löschen kann einen Ordner betreffen, der später im selben Request
+		// neu angelegt wird — gecachte Share-Infos wären dann falsch
+		$this->flushFolderUserPathsCache();
 		$this->addNotificationsForFileAction($path, Files::TYPE_SHARE_DELETED, 'deleted_self', 'deleted_by');
 	}
 
@@ -149,6 +171,9 @@ class FilesHooks {
 	 * @param string $newPath Path of the file after rename
 	 */
 	public function fileAfterRename($oldPath, $newPath) {
+		// Umbenennen/Verschieben ändert Ordnerpfade — gecachte Share-Infos verwerfen
+		$this->flushFolderUserPathsCache();
+
 		if ($this->config->getAppValue('activity', 'enable_move_and_rename_activities', 'no') !== 'yes') {
 			return;
 		}
@@ -213,7 +238,11 @@ class FilesHooks {
 			return;
 		}
 
-		$newAffectedUsers = $this->getUserPathsFromPath($filePath, $uidOwner);
+		// Frisch angelegte Dateien können selbst noch nicht geteilt sein — dort
+		// reicht der (pro Zielordner gecachte) Share-Lookup der Eltern-Hierarchie.
+		$newAffectedUsers = ($activityType === Files::TYPE_SHARE_CREATED)
+			? $this->getUserPathsFromNewFilePath($filePath, $uidOwner)
+			: $this->getUserPathsFromPath($filePath, $uidOwner);
 
 		// affected users for old path
 		$oldAffectedUsers = [];
@@ -304,6 +333,53 @@ class FilesHooks {
 	}
 
 	/**
+	 * Wie getUserPathsFromPath(), aber für frisch angelegte Dateien:
+	 * Eine neue Datei kann selbst noch keine Share-Quelle sein (frische fileid),
+	 * daher genügen die Shares der Eltern-Hierarchie. Die werden pro Zielordner
+	 * request-lokal gecacht, sodass bei Masse-Uploads in denselben Ordner der
+	 * Hierarchie-Walk nur einmal statt pro Datei läuft.
+	 *
+	 * @param string $path Owner-relativer Pfad der neuen Datei
+	 * @param string $uidOwner
+	 * @return array "username => path"-Map
+	 */
+	protected function getUserPathsFromNewFilePath($path, $uidOwner) {
+		$slashPos = \strrpos($path, '/');
+		if ($slashPos === false || \substr($path, $slashPos + 1) === '') {
+			// Unerwartetes Pfadformat — konservativ den ungecachten Weg nehmen
+			return $this->getUserPathsFromPath($path, $uidOwner);
+		}
+
+		$folderPath = ($slashPos === 0) ? '/' : \substr($path, 0, $slashPos);
+		$fileName = \substr($path, $slashPos + 1);
+
+		if (!isset($this->folderUserPathsCache[$uidOwner][$folderPath])) {
+			$cachedFolders = 0;
+			foreach ($this->folderUserPathsCache as $ownerFolders) {
+				$cachedFolders += \count($ownerFolders);
+			}
+			if ($cachedFolders >= self::FOLDER_USER_PATHS_CACHE_MAX) {
+				$this->folderUserPathsCache = [];
+			}
+			$this->folderUserPathsCache[$uidOwner][$folderPath] = $this->getUserPathsFromPath($folderPath, $uidOwner);
+		}
+
+		$userPaths = [];
+		foreach ($this->folderUserPathsCache[$uidOwner][$folderPath] as $user => $userFolderPath) {
+			$userPaths[$user] = \rtrim($userFolderPath, '/') . '/' . $fileName;
+		}
+		return $userPaths;
+	}
+
+	/**
+	 * Ordner-Share-Cache verwerfen, sobald sich Shares oder die
+	 * Ordnerstruktur im laufenden Request ändern könnten.
+	 */
+	protected function flushFolderUserPathsCache() {
+		$this->folderUserPathsCache = [];
+	}
+
+	/**
 	 * Return the source
 	 *
 	 * @param string $path
@@ -339,6 +415,8 @@ class FilesHooks {
 	 * @param array $params The hook params
 	 */
 	public function share($params) {
+		// Neue Shares im selben Request sofort sichtbar machen
+		$this->flushFolderUserPathsCache();
 		if ($params['itemType'] === 'file' || $params['itemType'] === 'folder') {
 			if ((int) $params['shareType'] === Share::SHARE_TYPE_USER) {
 				$this->shareFileOrFolderWithUser($params['shareWith'], (int) $params['fileSource'], $params['itemType'], $params['fileTarget'], true);
@@ -355,6 +433,8 @@ class FilesHooks {
 	 * @param array $params The hook params
 	 */
 	public function unShare($params) {
+		// Entfernte Shares im selben Request sofort sichtbar machen
+		$this->flushFolderUserPathsCache();
 		$shareExpired = $params['shareExpired'] ?? false;
 		if ($params['itemType'] === 'file' || $params['itemType'] === 'folder') {
 			if ((int) $params['shareType'] === Share::SHARE_TYPE_USER) {
