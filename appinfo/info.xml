@@ -28,8 +28,8 @@ This is a PHP 8.4 fork maintained by BW-Tech GmbH for owncloud.online.
     <admin>https://doc.owncloud.com/server/latest/admin_manual/configuration_server/activity_configuration.html</admin>
   </documentation>
   <website>https://bw.tech</website>
-  <bugs>https://github.com/GrossLukas/activity/issues</bugs>
-  <repository type="git">https://github.com/GrossLukas/activity.git</repository>
+  <bugs>https://github.com/BWTECH-github/activity/issues</bugs>
+  <repository type="git">https://github.com/BWTECH-github/activity.git</repository>
   <screenshot>https://raw.githubusercontent.com/owncloud/screenshots/68550c2b7c53e6309132ca1c7b177adca976db0b/activity/activity.png</screenshot>
   <category>tools</category>
   <dependencies>
