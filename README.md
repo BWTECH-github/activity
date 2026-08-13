@@ -1,23 +1,76 @@
-Activity App
-===============
+# Aktivitäten
 
-The ownCloud Activity application enables users to not only get a summarized overview of all file and folder events in their ownCloud, but also to receive notifications for such via email. The user can configure their individual Activity preferences in their personal settings and can decide in detail which file or folder actions should be listed in the Activity stream (accessible via the app launcher) and also for which file or folder actions the users wants to receive email notifications. The bulk email notifications can either be sent out hourly, daily or weekly to fit the specific needs of the individual user.
+Sammelt alle Ereignisse rund um Dateien und Ordner an einer Stelle und schickt
+auf Wunsch eine Zusammenfassung per E-Mail.
 
-From creation of new files or folders, to file or folder changes, updates, restores from trash bin, sharing activities, comments, tags and downloads from public share links - the ownCloud Activity app gathers all file or folder related actions in one place for the user to review. For users with lots of activity it is possible to limit the Activity stream to 'Favorites' in order to avoid noise. Furthermore the application provides filters to give users the means to maintain overview by reducing entries to relevant information.
+## Was erfasst wird
 
-And there you have it - a complete overview of all file and folder activities in your ownCloud with the additional ability to receive activity notifications via email in a time interval of your choice. Never again miss an important event related to content in ownCloud and always be up-to-date on all activities of your files and folders.
+Anlegen, Ändern, Umbenennen, Löschen und Wiederherstellen von Dateien und
+Ordnern, Freigaben (intern wie per Link), Kommentare, Schlagworte und Zugriffe
+über öffentliche Links.
 
-## QA metrics on master branch:
+Der Strom ist über das App-Menü erreichbar. Wer viel Betrieb hat, kann ihn auf
+*Favoriten* einschränken oder die Filter nutzen, um nur eine Art von Ereignis zu
+sehen.
 
-[![Build Status](https://drone.owncloud.com/api/badges/owncloud/activity/status.svg?branch=master)](https://drone.owncloud.com/owncloud/activity)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=owncloud_activity&metric=alert_status)](https://sonarcloud.io/dashboard?id=owncloud_activity)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=owncloud_activity&metric=security_rating)](https://sonarcloud.io/dashboard?id=owncloud_activity)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=owncloud_activity&metric=coverage)](https://sonarcloud.io/dashboard?id=owncloud_activity)
+## Voraussetzungen
 
-# Add new activities / types for other apps
+* owncloud.online 11.x
+* PHP 8.4
+* ein laufender Cron — ohne ihn werden keine E-Mails verschickt und alte
+  Einträge nicht abgeräumt
+* eingerichteter E-Mail-Versand, wenn die Benachrichtigungen genutzt werden
 
-With the activity manager extensions can be registered which allow any app to extend the activity behavior.
+## Installation
 
-In order to implement an extension create a class which implements the interface `\OCP\Activity\IExtension`.
+Über den Market, oder von Hand:
 
-The PHPDoc comments on each method should give enough information to the developer on how to implement them.
+```bash
+cd /var/www/owncloud.online/apps
+git clone https://github.com/BWTECH-github/activity.git
+chown -R www-data:www-data activity
+sudo -u www-data php8.4 ../occ app:enable activity
+```
+
+## Einstellungen
+
+Jedes Konto stellt unter *Persönliche Einstellungen → Aktivitäten* selbst ein,
+welche Ereignisse im Strom auftauchen und für welche eine E-Mail kommen soll.
+Der Versand geht stündlich, täglich oder wöchentlich — je nachdem, wie oft man
+gestört werden möchte.
+
+## Hintergrundaufträge
+
+| Auftrag | Aufgabe |
+| --- | --- |
+| `OCA\Activity\BackgroundJob\EmailNotification` | verschickt die gesammelten E-Mails |
+| `OCA\Activity\BackgroundJob\ExpireActivities` | räumt alte Einträge ab |
+
+Beide laufen über den normalen Cron.
+
+## Kommandozeile
+
+```bash
+# den Mailversand sofort anstoßen, statt auf den Cron zu warten
+sudo -u www-data php8.4 occ activity:send-emails
+```
+
+## Eigene Ereignisse beisteuern
+
+Andere Apps können den Aktivitätsstrom erweitern. Dazu implementiert man
+`\OCP\Activity\IExtension` und registriert die Klasse beim Activity-Manager. Die
+Kommentare an den einzelnen Methoden der Schnittstelle beschreiben, was jede
+zurückgeben muss.
+
+## Fehlersuche
+
+| Symptom | Ursache | Abhilfe |
+| --- | --- | --- |
+| Keine E-Mails | Cron läuft nicht, oder der Mailversand ist nicht eingerichtet | `occ background:cron` und die Mail-Einstellungen prüfen |
+| Strom bleibt leer | App war beim Ereignis noch nicht aktiv — rückwirkend wird nichts erfasst | abwarten, ab jetzt wird gesammelt |
+| Tabelle wächst unbegrenzt | Aufräumauftrag läuft nicht | Cron prüfen |
+
+## Herkunft
+
+Fork der gleichnamigen ownCloud-App, gepflegt von der BW-Tech GmbH für
+owncloud.online und PHP 8.4. Lizenz: AGPLv3.
