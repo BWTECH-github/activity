@@ -1,86 +1,37 @@
+---
+name: Fehlermeldung
+about: Ein Fehlverhalten in diesem Plugin melden
+labels: bug
+---
+
 <!--
-Thanks for reporting issues back to ownCloud! This is the issue tracker of ownCloud, if you have any support question please check out https://owncloud.org/support
+Sicherheitsluecken bitte NICHT hier melden, sondern vertraulich an
+security@bw.tech.
 
-This is the bug tracker for the Activity App. Find other components at https://github.com/owncloud/core/blob/master/CONTRIBUTING.md#guidelines
+Bitte vor dem Einfuegen pruefen, ob in Protokollauszuegen Namen, Pfade oder
+Token stehen.
+-->
 
-To make it possible for us to help you please fill out below information carefully.
---> 
-### Steps to reproduce
+### Schritte zum Nachstellen
+
 1.
 2.
 3.
 
-### Expected behaviour
-Tell us what should happen
+### Erwartetes Verhalten
 
-### Actual behaviour
-Tell us what happens instead
+### Tatsaechliches Verhalten
 
-### Server configuration
-**Operating system**:
+### Umgebung
 
-**Web server:**
+**Version des Plugins:**
 
-**Database:**
+**Version von owncloud.online:**
 
-**PHP version:**
+**PHP-Version, Datenbank, Betriebssystem:**
 
-**ownCloud version:** (see ownCloud admin page)
-
-**Where did you install ownCloud from:**
-
-**Signing status (ownCloud 9.0 and above):**
+### Protokoll
 
 ```
-Login as admin user into your ownCloud and access 
-http://example.com/index.php/settings/integrity/failed 
-paste the results here.
-```
 
-**List of activated apps:**
-
-```
-If you have access to your command line run e.g.:
-sudo -u www-data php occ app:list
-from within your ownCloud installation folder
-```
-
-**The content of config/config.php:**
-
-```
-If you have access to your command line run e.g.:
-sudo -u www-data php occ config:list system
-from within your ownCloud installation folder
-
-or 
-
-Insert your config.php content here
-(Without the database password, passwordsalt and secret)
-```
-
-**Are you using external storage, if yes which one:** local/smb/sftp/...
-
-**Are you using encryption:** yes/no
-
-**Are you using an external user-backend, if yes which one:** LDAP/ActiveDirectory/Webdav/...
-
-### Client configuration
-**Browser:**
-
-**Operating system:**
-
-### Logs
-
-#### ownCloud log (data/owncloud.log)
-```
-Insert your ownCloud log here
-```
-
-#### Browser log
-```
-Insert your browser log here, this could for example include:
-
-a) The javascript console log
-b) The network log 
-c) ...
 ```
