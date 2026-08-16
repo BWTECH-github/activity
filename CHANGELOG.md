@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [2.8.3] - 2026-08-16
+
+### Fixed
+
+- Vorschaubilder in der Aktivitaetsliste sassen in Verweisen ohne zugaenglichen
+  Namen (WCAG 2.4.4/4.1.2) und hielten den Tastaturlauf einmal je Zeile auf.
+  Fuehrt die Zeile zum selben Ziel, ist die Vorschau nur noch Illustration;
+  ohne Verweis der Zeile bleibt sie erreichbar.
+
 ## [2.8.2] - 2026-08-13
 
 ### Changed
