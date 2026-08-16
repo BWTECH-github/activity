@@ -232,7 +232,18 @@ $(function(){
 				content += '<br />';
 				for (var i = 0; i < activity.previews.length; i++) {
 					var preview = activity.previews[i];
-					content += ((preview.link) ? '<a href="' + preview.link + '">' + "\n" : '')
+					// WCAG 2.4.4/4.1.2: Ein Verweis, der nur ein schmueckendes
+					// Bild enthaelt, hat keinen zugaenglichen Namen. Fuehrt die
+					// Zeile ohnehin zum selben Ziel, ist die Vorschau reine
+					// Illustration und kommt aus dem Tab-Lauf. Fehlt der Verweis
+					// der Zeile, bleibt sie der einzige Weg dorthin - dann
+					// bleibt sie erreichbar.
+					var stumm = preview.link && activity.link;
+					content += ((preview.link)
+							? '<a href="' + preview.link + '"'
+								+ (stumm ? ' tabindex="-1" aria-hidden="true"' : '')
+								+ '>' + "\n"
+							: '')
 						+ '<img class="preview' + ((preview.isMimeTypeIcon) ? ' preview-mimetype-icon' : '') + '" src="' + preview.source + '" alt=""/>' + "\n"
 						+ ((preview.link) ? '</a>' + "\n" : '')
 				}
