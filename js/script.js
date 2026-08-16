@@ -232,18 +232,7 @@ $(function(){
 				content += '<br />';
 				for (var i = 0; i < activity.previews.length; i++) {
 					var preview = activity.previews[i];
-					// WCAG 2.4.4/4.1.2: Ein Verweis, der nur ein schmueckendes
-					// Bild enthaelt, hat keinen zugaenglichen Namen. Fuehrt die
-					// Zeile ohnehin zum selben Ziel, ist die Vorschau reine
-					// Illustration und kommt aus dem Tab-Lauf. Fehlt der Verweis
-					// der Zeile, bleibt sie der einzige Weg dorthin - dann
-					// bleibt sie erreichbar.
-					var stumm = preview.link && activity.link;
-					content += ((preview.link)
-							? '<a href="' + preview.link + '"'
-								+ (stumm ? ' tabindex="-1" aria-hidden="true"' : '')
-								+ '>' + "\n"
-							: '')
+					content += ((preview.link) ? '<a href="' + preview.link + '">' + "\n" : '')
 						+ '<img class="preview' + ((preview.isMimeTypeIcon) ? ' preview-mimetype-icon' : '') + '" src="' + preview.source + '" alt=""/>' + "\n"
 						+ ((preview.link) ? '</a>' + "\n" : '')
 				}
@@ -253,6 +242,28 @@ $(function(){
 				+'</div>';
 
 			var $content = $(content);
+
+			// WCAG 2.4.4/4.1.2: Ein Verweis, der nur ein schmueckendes Bild
+			// enthaelt, hat keinen zugaenglichen Namen -- fuer Hilfsmittel ein
+			// Ziel ohne Aussage, im Tastaturlauf ein Halt ohne Grund.
+			// Fuehrt der Betreff der Zeile zum selben Ziel, ist die Vorschau
+			// reine Illustration und faellt aus dem Tastaturlauf. Sonst bleibt
+			// sie der einzige Weg dorthin und bekommt den Betreff als Namen.
+			var $betreffVerweis = $content.find('.activitysubject a').first();
+			var betreff = $.trim($content.find('.activitysubject').text());
+			$content.find('a > img.preview').parent().each(function () {
+				var $verweis = $(this);
+				if ($.trim($verweis.text()) !== '') {
+					return;
+				}
+				if ($betreffVerweis.length
+					&& $betreffVerweis.attr('href') === $verweis.attr('href')) {
+					$verweis.attr({ tabindex: '-1', 'aria-hidden': 'true' });
+				} else if (betreff !== '') {
+					$verweis.attr('aria-label', betreff);
+				}
+			});
+
 			this.processElements($content);
 			this.lastDateGroup.append($content);
 		},
