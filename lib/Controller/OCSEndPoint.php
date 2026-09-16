@@ -38,6 +38,14 @@ use OCP\IUser;
 use OCP\IUserSession;
 
 class OCSEndPoint {
+	/**
+	 * Groesste Zahl Eintraege, die ein einzelner Aufruf liefert.
+	 *
+	 * Dieselbe Groesse benutzt der Mailversand fuer seine Stapel
+	 * (MailQueueHandler::ENTRY_LIMIT).
+	 */
+	public const MAX_LIMIT = 200;
+
 	/** @var string */
 	protected $filter;
 
@@ -141,7 +149,16 @@ class OCSEndPoint {
 			throw new InvalidFilterException();
 		}
 		$this->since = (int) $this->request->getParam('since', 0);
-		$this->limit = (int) $this->request->getParam('limit', 50);
+		/*
+		 * Die Obergrenze ist Absicht: 'limit' ging bis hierher ungeprueft an
+		 * Data::get() und von dort in setMaxResults(). Jede gelieferte Zeile
+		 * wird anschliessend voll aufbereitet - Parameter dekodiert, Formatter
+		 * je Parameter, bei previews=true dazu ein Vorschau-Aufruf. Ein
+		 * angemeldeter Nutzer konnte damit mit einem einzigen Aufruf die halbe
+		 * Tabelle anfordern. 200 entspricht der Stapelgroesse, mit der auch der
+		 * Mailversand arbeitet (MailQueueHandler::ENTRY_LIMIT).
+		 */
+		$this->limit = \max(1, \min(self::MAX_LIMIT, (int) $this->request->getParam('limit', 50)));
 		$this->loadPreviews = $this->request->getParam('previews', 'false') === 'true';
 		$this->objectType = (string) $this->request->getParam('object_type', '');
 		$this->objectId = (int) $this->request->getParam('object_id', 0);

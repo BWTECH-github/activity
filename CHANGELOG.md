@@ -4,6 +4,72 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [3.0.0] - 2026-09-16
+
+Vollständiger Durchgang; die Befunde sind mit
+`tests/visual/pruefe-aktivitaeten.js` (15/15) und
+`tests/visual/rss-sperre.sh` belegt.
+
+### Security
+
+- **Ein gesperrtes Konto liest über sein RSS-Token nicht mehr mit.** Die Route
+  trägt `@PublicPage`, der Kern prüft dort keine Anmeldung, und
+  `getUserFromToken()` fragt nur nach Länge und Eindeutigkeit des Tokens — nicht
+  danach, ob das Konto noch aktiv ist. Damit überlebte der Strom jede Sperrung:
+  Sitzungen, App-Passwörter und WebDAV waren abgeschnitten, der Feed lieferte
+  weiter, und zwar auch Einträge, die nach der Sperre entstanden. Gemessen:
+  WebDAV 401, RSS 200 mit 16 Einträgen inklusive neuer Freigaben. Ein
+  Passwortwechsel half nicht, das Token hängt nicht daran.
+- Die Anrede der Sammelmail gab den Anzeigenamen unmaskiert aus. Ein
+  Administrator kann Namen fremder Konten setzen — damit stand fremdes Markup in
+  einer Mail, die der Server unter der Marke der Instanz verschickt.
+- `limit` und `count` der Aktivitäts-APIs sind auf 200 gedeckelt. Sie gingen
+  ungeprüft in `setMaxResults()`, und jede gelieferte Zeile wird voll
+  aufbereitet; ein angemeldeter Nutzer konnte mit einem Aufruf die halbe Tabelle
+  anfordern. Negative Werte ließen die Abfrage mit einer ungefangenen Ausnahme
+  auflaufen.
+
+### Changed
+
+- Die Sammelmail benutzt den gemeinsamen Mailrahmen der Instanz statt eines
+  eigenen Layouts von 2015 (600-Pixel-Tabelle, Verdana in 0,8em, farbige
+  Kopfzelle). Das Logo hängt jetzt als Anhang an der Mail — vorher lud es über
+  eine absolute Adresse auf die Instanz und blieb bei jedem Empfänger außerhalb
+  des Netzes leer. Neu ist eine Schaltfläche „Alle Aktivitäten ansehen".
+- Die Mailvorlage wird mit der Sprache des Empfängers erzeugt. Der Rahmen bindet
+  Signatur und Schaltfläche über `inc(['app' => 'core'])` ein, und dort entsteht
+  das Sprachobjekt aus der Sprache **des Blattes**: die Einträge waren deutsch,
+  „Best regards, your owncloud.online Team" darunter englisch.
+
+### Fixed
+
+- `occ activity:send-emails` drehte sich endlos, sobald ein Versand scheiterte.
+  Ein gescheitertes Konto bleibt in der Warteschlange und wird sofort wieder
+  geholt; die Abbruchbedingung zählte aber die *geholten* statt der *erledigten*
+  Konten. Jetzt endet der Lauf mit einer Meldung, wenn kein Fortschritt mehr
+  entsteht.
+- „und 3 mehr" im Strom ließ sich nicht aufklappen: `parseMessage` liegt in
+  `OCA.Activity.Formatter`, der Aufruf ging an das falsche Objekt und endete in
+  „self.parseMessage is not a function". Der Schalter trägt jetzt außerdem
+  `role="button"`, reagiert auf die Leertaste und hängt kein `#` an die Adresse.
+- Der Guard gegen doppelte Vorschau-Verweise aus 2.8.3 griff nie: er verglich
+  rohe `href`-Attribute, aber der Betreff-Verweis ist absolut und der
+  Vorschau-Verweis relativ. Verglichen werden jetzt die aufgelösten Adressen;
+  vorher blieben 36 von 36 Verweisen im Tastaturlauf stehen.
+- Der Strom meldet Nachladen und Ende an Sprachausgaben (`role="feed"`,
+  `aria-busy`, zwei Statuszeilen). Vorher wuchs die Liste von 37 auf 67 Einträge,
+  ohne dass eine Sprachausgabe davon erfuhr.
+- Die Umschalter auf der Einstellungsseite sind echte Schalter mit eigenem Namen.
+  Vorher hingen sie an 13 Tabellenzellen: nicht fokussierbar, ohne Rolle, und der
+  Mauszeiger blieb der normale Pfeil.
+- Das Speichern der Einstellungen schaltete `file_moved` und `file_renamed` still
+  ab, solange `enable_move_and_rename_activities` nicht gesetzt ist — das
+  Formular zeigt diese Typen gar nicht an, die Schleife schrieb trotzdem eine 0.
+- Der Sammelmail-Auftrag erkennt jetzt selbst, ob er auf der Kommandozeile
+  läuft. Der Container konnte den untypisierten Parameter `$isCLI` nicht füllen,
+  er blieb `null`, und der Lauf nahm immer den Web-Zweig mit 25 Mails je
+  Durchgang — bei vielen Konten wurde die Warteschlange nie leer.
+
 ## [2.8.3] - 2026-08-16
 
 ### Fixed

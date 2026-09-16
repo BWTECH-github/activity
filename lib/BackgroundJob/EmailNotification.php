@@ -74,7 +74,18 @@ class EmailNotification extends TimedJob {
 		$this->userManager = $userManager;
 		$this->config = $config;
 		$this->logger = $logger;
-		$this->isCLI = $isCLI;
+		/*
+		 * Ohne Angabe selbst nachsehen.
+		 *
+		 * Der Kern baut diesen Auftrag über den Container (JobList::buildJob).
+		 * Der letzte Parameter ist untypisiert und heißt 'isCLI' - dafür kennt
+		 * der Container keinen Dienst, also blieb es beim Standardwert null.
+		 * Gemessen: isCLI war NULL, während \OC::$CLI true war. Der Lauf nahm
+		 * deshalb immer den Web-Zweig mit 25 Mails je Durchgang, auch auf einer
+		 * Instanz mit echtem Cron - bei vielen Konten wurde die Warteschlange
+		 * dann nie leer.
+		 */
+		$this->isCLI = ($isCLI === null) ? \OC::$CLI : (bool) $isCLI;
 	}
 
 	protected function run($argument) {

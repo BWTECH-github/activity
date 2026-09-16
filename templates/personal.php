@@ -15,9 +15,23 @@ style('activity', 'settings');
 	<table class="grid activitysettings">
 		<thead>
 			<tr>
+				<?php
+				/*
+				 * Der Spaltenkopf schaltet die ganze Spalte um. Bis hierher hing
+				 * das an einem Klick auf die Tabellenzelle: nicht fokussierbar,
+				 * ohne Rolle, ohne Namen - mit der Tastatur unerreichbar, und
+				 * der Mauszeiger blieb der normale Pfeil, sodass niemand ahnte,
+				 * dass dort etwas passiert. Jetzt steht ein echter Schalter
+				 * darin.
+				 */
+				?>
 				<?php foreach ($_['methods'] as $method => $methodName): ?>
-				<th class="small activity_select_group" scope="col" data-select-group="<?php p($method) ?>">
-					<?php p($l->t($methodName)); ?>
+				<th class="small" scope="col">
+					<button type="button" class="activity_select_group"
+						data-select-group="<?php p($method) ?>"
+						aria-label="<?php p($l->t('Switch all %s notifications on or off', [$l->t($methodName)])); ?>">
+						<?php p($l->t($methodName)); ?>
+					</button>
 				</th>
 				<?php endforeach; ?>
 				<th><span id="activity_notifications_msg" class="msg"></span></th>
@@ -37,8 +51,20 @@ style('activity', 'settings');
 					</label>
 				</td>
 				<?php endforeach; ?>
-				<td class="activity_select_group" data-select-group="<?php p($activity) ?>">
-					<?php print_unescaped($data['desc']); ?>
+				<?php
+				/*
+				 * Dasselbe für die Zeile: der Schalter trägt die Beschreibung
+				 * als Namen, damit eine Sprachausgabe sagt, welche Zeile
+				 * gemeint ist. Die Beschreibung darf Auszeichnung enthalten
+				 * (<strong>), das ist in einem Schalter zulässig.
+				 */
+				?>
+				<td>
+					<button type="button" class="activity_select_group"
+						data-select-group="<?php p($activity) ?>"
+						aria-label="<?php p($l->t('Switch this row on or off: %s', [\strip_tags($data['desc'])])); ?>">
+						<?php print_unescaped($data['desc']); ?>
+					</button>
 				</td>
 			</tr>
 		<?php endforeach; ?>

@@ -44,6 +44,12 @@ OC.L10N.register(
     "Enable RSS feed" : "RSS-Feed aktivieren",
     "No activity yet" : "Bislang keine Aktivitäten",
     "No more events to load" : "Keine weiteren Ereignisse zu Laden",
-    "Files" : "Dateien"
+    "Files" : "Dateien",
+    "Show all activities" : "Alle Aktivitäten ansehen",
+    "Show all activities:" : "Alle Aktivitäten ansehen:",
+    "If the button does not work, open this address:" : "Falls die Schaltfläche nicht funktioniert, öffnen Sie diese Adresse:",
+    "Loading activities…" : "Aktivitäten werden geladen…",
+    "Switch all %s notifications on or off" : "Alle %s-Benachrichtigungen ein- oder ausschalten",
+    "Switch this row on or off: %s" : "Diese Zeile ein- oder ausschalten: %s"
 },
 "nplurals=2; plural=(n != 1);");

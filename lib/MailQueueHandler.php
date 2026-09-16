@@ -280,19 +280,38 @@ class MailQueueHandler {
 			];
 		}
 
-		$alttext = new Template('activity', 'email.notification', '', false);
+		/*
+		 * Die Sprache gehoert an das Blatt, nicht nur in die Variablen: der
+		 * gemeinsame Mailrahmen bindet Signatur und Schaltflaeche ueber
+		 * inc(..., ['app' => 'core']) ein, und dort baut Base::load() das
+		 * l10n-Objekt mit getLanguageCode() DES BLATTES neu. Ohne die Angabe
+		 * hat das Blatt die Standardsprache - die Eintraege standen dann auf
+		 * Deutsch und "Best regards, your owncloud.online Team" darunter auf
+		 * Englisch.
+		 */
+		$alttext = new Template('activity', 'email.notification', '', false, $l->getLanguageCode());
 		$alttext->assign('username', $user->getDisplayName());
 		$alttext->assign('activities', $activityListPlain);
 		$alttext->assign('skippedCount', $skippedCount);
 		$alttext->assign('owncloud_installation', $this->urlGenerator->getAbsoluteURL('/'));
+		$alttext->assign(
+			'activity_link',
+			$this->urlGenerator->linkToRouteAbsolute('activity.Activities.showList')
+		);
 		$alttext->assign('overwriteL10N', $l);
 		$emailText = $alttext->fetchPage();
 
-		$htmltext = new Template('activity', 'html.notification', '', false);
+		// Sprache am Blatt, siehe die Begruendung bei der Textfassung.
+		$htmltext = new Template('activity', 'html.notification', '', false, $l->getLanguageCode());
 		$htmltext->assign('username', $user->getDisplayName());
 		$htmltext->assign('activities', $activityListHtml);
 		$htmltext->assign('skippedCount', $skippedCount);
 		$htmltext->assign('owncloud_installation', $this->urlGenerator->getAbsoluteURL('/'));
+		// Ziel der Schaltflaeche in der Mail: der Aktivitaetenstrom selbst.
+		$htmltext->assign(
+			'activity_link',
+			$this->urlGenerator->linkToRouteAbsolute('activity.Activities.showList')
+		);
 		$htmltext->assign('overwriteL10N', $l);
 		$htmlText = $htmltext->fetchPage();
 
