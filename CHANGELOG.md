@@ -10,6 +10,12 @@ Vollständiger Durchgang; die Befunde sind mit
 `tests/visual/pruefe-aktivitaeten.js` (15/15) und
 `tests/visual/rss-sperre.sh` belegt.
 
+Nachgebessert am 17.09.2026, ohne neue Versionsnummer: Voraussetzung ist jetzt
+owncloud.online 11.1. Die Sammelmail bindet `html.mail.header`,
+`html.mail.button` und `html.mail.end` aus dem Kern ein, und die gibt es nur im
+Redesign-Kern. Auf einem 11.0.x-Kern brach der Versand mit „template file not
+found“ ab. Für 11.0.x bleibt 2.8.x (Zweig `main`).
+
 ### Security
 
 - **Ein gesperrtes Konto liest über sein RSS-Token nicht mehr mit.** Die Route

@@ -15,7 +15,8 @@ sehen.
 
 ## Voraussetzungen
 
-* owncloud.online 11.x
+* owncloud.online 11.1 oder neuer (Redesign-Kern: die Sammelmail nutzt dessen
+  Mailrahmen); für 11.0.x gilt Version 2.8.x
 * PHP 8.4
 * ein laufender Cron — ohne ihn werden keine E-Mails verschickt und alte
   Einträge nicht abgeräumt
