@@ -4,6 +4,66 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [2.8.4] - 2026-09-24
+
+Rückportiert aus der Redesign-Linie (dort 3.0.0), ohne deren neuen Mailrahmen.
+Gegen den 11.0-Kern geprüft mit `tests/visual/pruefe-aktivitaeten.js` (15/15)
+und den Unit-Tests (409/409, vorher 398/398). Die Feed-Sperre ist in
+`tests/unit/Controller/FeedTest.php` belegt (gesperrtes und gelöschtes Konto);
+`tests/visual/rss-sperre.sh` stellt sie an einer laufenden Instanz nach.
+
+### Security
+
+- **Ein gesperrtes Konto liest über sein RSS-Token nicht mehr mit.** Die Route
+  trägt die Annotation PublicPage, der Kern prüft dort keine Anmeldung, und
+  `getUserFromToken()` fragt nur nach Länge und Eindeutigkeit des Tokens, nicht
+  danach, ob das Konto noch aktiv ist. Damit überlebte der Feed jede Sperrung:
+  Sitzungen, App-Passwörter und WebDAV waren abgeschnitten, der Feed lieferte
+  weiter, auch Einträge, die nach der Sperre entstanden. Ein Passwortwechsel
+  half nicht, das Token hängt nicht daran. Gesperrte und gelöschte Konten
+  bekommen jetzt dieselbe Antwort wie ein ungültiges Token.
+- Die Anrede der HTML-Sammelmail gab den Anzeigenamen unmaskiert aus. Ein
+  Administrator kann Namen fremder Konten setzen; damit stand fremdes Markup in
+  einer Mail, die der Server unter der Marke der Instanz verschickt.
+- `limit` und `count` der Aktivitäts-APIs sind auf 1 bis 200 gedeckelt. Sie
+  gingen ungeprüft in `setMaxResults()`, und jede gelieferte Zeile wird voll
+  aufbereitet; ein angemeldeter Nutzer konnte mit einem Aufruf die halbe
+  Tabelle anfordern. Negative Werte ließen die Abfrage mit einer ungefangenen
+  Ausnahme auflaufen.
+
+### Fixed
+
+- `occ activity:send-emails` drehte sich endlos, sobald ein Versand scheiterte:
+  ein gescheitertes Konto bleibt in der Warteschlange und wird sofort wieder
+  geholt, die Abbruchbedingung zählte aber die *geholten* statt der
+  *erledigten* Konten. Jede Runde schrieb einen Fehler samt Stacktrace ins
+  Protokoll. Jetzt endet der Lauf mit einer Meldung, sobald ein Stapel keinen
+  Fortschritt mehr bringt.
+- Der Sammelmail-Auftrag erkennt jetzt selbst, ob er auf der Kommandozeile
+  läuft. Der Container konnte den untypisierten Parameter `$isCLI` nicht
+  füllen, er blieb `null`, und der Lauf nahm immer den Web-Zweig mit 25 Konten
+  je Durchgang; bei vielen Konten wurde die Warteschlange nie leer. Die
+  CLI-Schleife bricht ab, sobald ein voller Stapel nichts erledigt hat, sonst
+  hätte sie sich bei einem nicht erreichbaren Mailserver genauso endlos
+  gedreht wie `activity:send-emails`.
+- „und 3 mehr" im Strom ließ sich nicht aufklappen: `parseMessage` liegt in
+  `OCA.Activity.Formatter`, der Aufruf ging an das falsche Objekt. Der Schalter
+  trägt jetzt außerdem `role="button"`, reagiert auf die Leertaste und hängt
+  kein `#` an die Adresse.
+- Der Guard gegen doppelte Vorschau-Verweise aus 2.8.3 griff nie: er verglich
+  rohe `href`-Attribute, aber der Betreff-Verweis ist absolut und der
+  Vorschau-Verweis relativ. Verglichen werden jetzt die aufgelösten Adressen.
+- Der Strom meldet Nachladen und Ende an Sprachausgaben (`role="feed"`,
+  `aria-busy`, zwei Statuszeilen).
+- Die Umschalter auf der Einstellungsseite sind echte Schalter mit eigenem
+  Namen statt anklickbarer Tabellenzellen ohne Rolle und ohne Zeigerhand.
+- Das Speichern der Einstellungen schaltete `file_moved` und `file_renamed`
+  still ab, solange `enable_move_and_rename_activities` nicht gesetzt ist: das
+  Formular zeigt diese Typen gar nicht an, die Schleife schrieb trotzdem eine 0.
+- Die Mailvorlagen werden mit der Sprache des Empfängers erzeugt, damit auch
+  eingebundene Kernbausteine (Fußzeile) in dieser Sprache erscheinen. Die
+  Textfassung endet mit einem Verweis auf den Aktivitätenstrom.
+
 ## [2.8.3] - 2026-08-16
 
 ### Fixed

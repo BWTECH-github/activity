@@ -53,6 +53,9 @@ class EmailNotification extends TimedJob {
 	/** @var bool */
 	protected $isCLI;
 
+	/** @var int Konten, die der letzte runStep() erledigt hat */
+	protected $handledInLastStep = 0;
+
 	/**
 	 * @param MailQueueHandler|null $mailQueueHandler
 	 * @param IUserManager $userManager
@@ -74,7 +77,18 @@ class EmailNotification extends TimedJob {
 		$this->userManager = $userManager;
 		$this->config = $config;
 		$this->logger = $logger;
-		$this->isCLI = $isCLI;
+		/*
+		 * Ohne Angabe selbst nachsehen.
+		 *
+		 * Der Kern baut diesen Auftrag über den Container (JobList::buildJob).
+		 * Der letzte Parameter ist untypisiert und heißt 'isCLI' - dafür kennt
+		 * der Container keinen Dienst, also blieb es beim Standardwert null.
+		 * Gemessen: isCLI war NULL, während \OC::$CLI true war. Der Lauf nahm
+		 * deshalb immer den Web-Zweig mit 25 Mails je Durchgang, auch auf einer
+		 * Instanz mit echtem Cron - bei vielen Konten wurde die Warteschlange
+		 * dann nie leer.
+		 */
+		$this->isCLI = ($isCLI === null) ? \OC::$CLI : (bool) $isCLI;
 	}
 
 	protected function run($argument) {
@@ -88,7 +102,17 @@ class EmailNotification extends TimedJob {
 				// If we are in CLI mode, we keep sending emails
 				// until we are done.
 				$emails_sent = $this->runStep(self::CLI_EMAIL_BATCH_SIZE, $sendTime);
-			} while ($emails_sent === self::CLI_EMAIL_BATCH_SIZE);
+				/*
+				 * Ohne Fortschritt abbrechen. runStep() liefert die Zahl der
+				 * GEHOLTEN Konten; ein Konto, dessen Versand scheitert, bleibt
+				 * in der Warteschlange und steht beim nächsten Holen wieder
+				 * vorn (sortiert nach der ältesten Aktivität). Sobald ein
+				 * ganzer Stapel nur aus solchen Konten besteht, holte die
+				 * Schleife ihn endlos neu, mit einem Versandversuch und einer
+				 * Protokollzeile je Konto und Runde - etwa wenn der Mailserver
+				 * nicht erreichbar ist. Der Rest bleibt für den nächsten Lauf.
+				 */
+			} while ($emails_sent === self::CLI_EMAIL_BATCH_SIZE && $this->handledInLastStep > 0);
 		} else {
 			// Only send 25 Emails in one go for web cron
 			$this->runStep(self::WEB_EMAIL_BATCH_SIZE, $sendTime);
@@ -100,10 +124,12 @@ class EmailNotification extends TimedJob {
 	 *
 	 * @param int $limit Number of users we want to send an email to
 	 * @param int $sendTime The latest send time
-	 * @return int Number of users we sent an email to
+	 * @return int Number of users fetched from the queue; how many of them
+	 *             were dealt with is kept in handledInLastStep
 	 * @throws \Exception
 	 */
 	protected function runStep($limit, $sendTime) {
+		$this->handledInLastStep = 0;
 		// Get all users which should receive an email
 		$affectedUsers = $this->mqHandler->getAffectedUsers($limit, $sendTime);
 		if (empty($affectedUsers)) {
@@ -157,6 +183,7 @@ class EmailNotification extends TimedJob {
 
 		// Delete all entries we dealt with
 		$this->mqHandler->deleteSentItems($sentMailForUsers, $sendTime);
+		$this->handledInLastStep = \count($sentMailForUsers);
 
 		return \sizeof($affectedUsers);
 	}

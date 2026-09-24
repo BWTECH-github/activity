@@ -205,3 +205,29 @@
 	filter: alpha(opacity=50);
 	opacity: .5;
 }
+
+/*
+ * Der Umschalter in Spaltenkopf und Zeile ist jetzt ein echter Schalter
+ * (templates/personal.php). Er soll aber weiter wie der Text aussehen, der er
+ * vorher war - nur eben fokussierbar und mit Zeigerhand.
+ */
+.activitysettings .activity_select_group {
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	color: inherit;
+	text-align: inherit;
+	cursor: pointer;
+}
+
+.activitysettings th .activity_select_group {
+	font-weight: inherit;
+}
+
+.activitysettings .activity_select_group:hover {
+	text-decoration: underline;
+}

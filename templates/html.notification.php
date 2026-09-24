@@ -17,9 +17,16 @@ $l = $_['overwriteL10N'];
 					<td width="20px">&nbsp;</td>
 					<td style="font-weight:normal; font-size:0.8em; line-height:1.2em; font-family:verdana,'arial',sans;">
 						<p>
-							<?php print_unescaped(
-	$l->t('Hello %s,', [$_['username']])
-); ?>
+							<?php
+							/*
+							 * p() statt print_unescaped: der Anzeigename kommt roh aus
+							 * MailQueueHandler (getDisplayName()). Wer seinen Namen auf
+							 * Markup setzt, bestimmte damit den Inhalt einer Mail, die der
+							 * Server unter der Marke der Instanz verschickt; ein
+							 * Administrator kann den Namen auch für fremde Konten setzen.
+							 */
+							p($l->t('Hello %s,', [$_['username']]));
+							?>
 						</p>
 						<p>
 							<?php print_unescaped(

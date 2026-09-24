@@ -161,5 +161,82 @@ class EmailNotificationTest extends TestCase {
 		// an exception that we cannot handle.
 		$backgroundJob = $this->getEmailNotification(true);
 		$this->assertEquals(1, $this->invokePrivate($backgroundJob, 'runStep', [2, 200]));
+		$this->assertSame(0, $this->invokePrivate($backgroundJob, 'handledInLastStep'));
+	}
+
+	/**
+	 * Der Kern baut den Auftrag über den Container, der für den
+	 * untypisierten Parameter nichts einsetzt. Ohne Angabe gilt deshalb die
+	 * Umgebung; vorher blieb es bei null und damit immer beim Web-Zweig.
+	 */
+	public function testIsCliFollowsEnvironmentWhenNotGiven() {
+		$backgroundJob = $this->getEmailNotification(null);
+		$this->assertSame(\OC::$CLI, $this->invokePrivate($backgroundJob, 'isCLI'));
+	}
+
+	/**
+	 * @param int $count
+	 * @return array
+	 */
+	private function queuedUsers($count) {
+		$users = [];
+		for ($i = 0; $i < $count; $i++) {
+			$users[] = ['uid' => 'u' . $i, 'email' => 'u' . $i . '@example.com'];
+		}
+		return $users;
+	}
+
+	/**
+	 * Ein voller Stapel, dessen Versand komplett scheitert, bleibt in der
+	 * Warteschlange und steht beim nächsten Holen wieder vorn. Die
+	 * CLI-Schleife darf ihn nicht endlos neu holen.
+	 */
+	public function testRunCliStopsWithoutProgress() {
+		$abrufe = 0;
+		$this->mqHandler->method('getAffectedUsers')
+			->willReturnCallback(function () use (&$abrufe) {
+				$abrufe++;
+				if ($abrufe > 3) {
+					throw new \RuntimeException('Endlosschleife: Stapel wird immer wieder geholt');
+				}
+				return $this->queuedUsers(EmailNotification::CLI_EMAIL_BATCH_SIZE);
+			});
+		$this->mqHandler->method('sendEmailToUser')
+			->willThrowException(new \Exception('SMTP nicht erreichbar'));
+		$this->config->method('getUserValueForUsers')->willReturn([]);
+		$this->config->method('getSystemValue')->willReturn('en');
+		$fakeUser = $this->createMock(IUser::class);
+		$fakeUser->method('isEnabled')->willReturn(true);
+		$this->userManager->method('get')->willReturn($fakeUser);
+
+		$this->invokePrivate($this->getEmailNotification(true), 'run', [[]]);
+
+		$this->assertSame(1, $abrufe);
+	}
+
+	/**
+	 * Solange ein voller Stapel erledigt wird, holt die CLI-Schleife weiter.
+	 */
+	public function testRunCliContinuesWhileProgress() {
+		$abrufe = 0;
+		$this->mqHandler->method('getAffectedUsers')
+			->willReturnCallback(function () use (&$abrufe) {
+				$abrufe++;
+				if ($abrufe > 3) {
+					throw new \RuntimeException('Endlosschleife');
+				}
+				return $abrufe === 1
+					? $this->queuedUsers(EmailNotification::CLI_EMAIL_BATCH_SIZE)
+					: $this->queuedUsers(2);
+			});
+		$this->config->method('getUserValueForUsers')->willReturn([]);
+		$this->config->method('getSystemValue')->willReturn('en');
+		$fakeUser = $this->createMock(IUser::class);
+		$fakeUser->method('isEnabled')->willReturn(true);
+		$this->userManager->method('get')->willReturn($fakeUser);
+
+		$this->invokePrivate($this->getEmailNotification(true), 'run', [[]]);
+
+		$this->assertSame(2, $abrufe);
 	}
 }

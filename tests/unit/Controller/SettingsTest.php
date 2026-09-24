@@ -231,9 +231,60 @@ class SettingsTest extends TestCase {
 		$this->assertStringContainsString('<input type="checkbox" id="NotificationTestTypeShared2_email" name="NotificationTestTypeShared2_email" value="1" class="NotificationTestTypeShared2 email checkbox" />', $cleanedResponse);
 		$this->assertStringContainsString('<input type="checkbox" id="NotificationTestTypeShared2_stream" name="NotificationTestTypeShared2_stream" value="1" class="NotificationTestTypeShared2 stream checkbox" disabled="disabled" />', $cleanedResponse);
 
-		// Description of the type
-		$cleanedResponse = \str_replace(["\r", "\n", "\t"], '', $renderedResponse);
-		$this->assertStringContainsString('<td class="activity_select_group" data-select-group="NotificationTestTypeShared">Share description</td>', $cleanedResponse);
+		// Beschreibung und Spaltenkopf sind echte Schalter mit Namen statt
+		// anklickbarer Tabellenzellen ohne Rolle.
+		$this->assertStringContainsString('<button type="button" class="activity_select_group" data-select-group="NotificationTestTypeShared" aria-label="Switch this row on or off: Share description"> Share description </button>', $cleanedResponse);
+		$this->assertStringContainsString('<button type="button" class="activity_select_group" data-select-group="email" aria-label="Switch all Mail notifications on or off">', $cleanedResponse);
+		$this->assertStringNotContainsString('<td class="activity_select_group"', $cleanedResponse);
+		$this->assertStringNotContainsString('<th class="small activity_select_group"', $cleanedResponse);
+	}
+
+	public function dataPersonalMoveAndRename() {
+		return [
+			'abgeschaltet' => ['no', false],
+			'eingeschaltet' => ['yes', true],
+		];
+	}
+
+	/**
+	 * Solange enable_move_and_rename_activities nicht an ist, zeigt das
+	 * Formular für file_moved und file_renamed keine Kästchen. Das Speichern
+	 * schrieb trotzdem eine 0 für beide und schaltete sie damit still ab.
+	 *
+	 * @dataProvider dataPersonalMoveAndRename
+	 *
+	 * @param string $setting
+	 * @param bool $expectWritten
+	 */
+	public function testPersonalMoveAndRenameOnlyWhenShown($setting, $expectWritten) {
+		$this->data->expects($this->any())
+			->method('getNotificationTypes')
+			->willReturn([
+				'file_changed' => 'Changed',
+				'file_moved' => 'Moved',
+				'file_renamed' => 'Renamed',
+			]);
+		$this->config->method('getAppValue')
+			->willReturnMap([
+				['activity', 'enable_move_and_rename_activities', 'no', $setting],
+			]);
+
+		$geschrieben = [];
+		$this->config->method('setUserValue')
+			->willReturnCallback(function ($uid, $app, $key) use (&$geschrieben) {
+				$geschrieben[] = $key;
+			});
+
+		$this->controller->personal();
+
+		$this->assertContains('notify_email_file_changed', $geschrieben);
+		foreach (['notify_email_file_moved', 'notify_stream_file_moved', 'notify_email_file_renamed', 'notify_stream_file_renamed'] as $key) {
+			if ($expectWritten) {
+				$this->assertContains($key, $geschrieben);
+			} else {
+				$this->assertNotContains($key, $geschrieben);
+			}
+		}
 	}
 
 	public function displayPanelEmailWarningData() {

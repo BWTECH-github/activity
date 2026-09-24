@@ -30,6 +30,7 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IConfig;
 use OCP\IL10N;
+use OCP\IUserManager;
 use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
@@ -58,6 +59,9 @@ class Feed extends Controller {
 	/** @var IFactory */
 	protected $l10nFactory;
 
+	/** @var IUserManager */
+	protected $userManager;
+
 	/** @var IL10N */
 	protected $l;
 
@@ -79,6 +83,7 @@ class Feed extends Controller {
 	 * @param IManager $activityManager
 	 * @param IFactory $l10nFactory
 	 * @param IConfig $config
+	 * @param IUserManager $userManager
 	 * @param string $user
 	 */
 	public function __construct(
@@ -91,6 +96,7 @@ class Feed extends Controller {
 		IManager $activityManager,
 		IFactory $l10nFactory,
 		IConfig $config,
+		IUserManager $userManager,
 		$user
 	) {
 		parent::__construct($appName, $request);
@@ -101,6 +107,7 @@ class Feed extends Controller {
 		$this->activityManager = $activityManager;
 		$this->l10nFactory = $l10nFactory;
 		$this->config = $config;
+		$this->userManager = $userManager;
 		$this->user = $user;
 	}
 
@@ -113,6 +120,31 @@ class Feed extends Controller {
 	public function show() {
 		try {
 			$user = $this->activityManager->getCurrentUserId();
+
+			/*
+			 * Ein gesperrtes Konto darf hier nichts mehr lesen.
+			 *
+			 * Diese Route traegt die Annotation PublicPage; der Kern prueft die
+			 * Anmeldung deshalb nicht, und das Konto kommt allein ueber das
+			 * RSS-Token zustande. OC\Activity\Manager::getUserFromToken() fragt nur, ob
+			 * der Wert 30 Zeichen lang ist und genau einem Konto gehoert -
+			 * nicht, ob dieses Konto noch aktiv ist.
+			 *
+			 * Damit ueberlebte der Strom jede Sperrung: Sitzungen, App-
+			 * Passwoerter und WebDAV waren abgeschnitten (Session.php prueft
+			 * isEnabled an drei Stellen), der Feed lieferte weiter - und zwar
+			 * auch NEUE Eintraege, also Dateinamen und Freigaben, die nach der
+			 * Sperre entstanden sind. Am 16.09.2026 an der Testinstanz
+			 * gemessen: WebDAV 401, RSS 200 mit 16 Eintraegen.
+			 *
+			 * Ein Passwortwechsel half ebenfalls nicht, das Token haengt nicht
+			 * daran. Die Mailbenachrichtigung dieser App kennt die Pruefung
+			 * uebrigens (BackgroundJob\EmailNotification), nur der Feed nicht.
+			 */
+			$konto = $this->userManager->get($user);
+			if ($konto === null || !$konto->isEnabled()) {
+				throw new \UnexpectedValueException('Account is disabled or gone');
+			}
 
 			$userLang = $this->config->getUserValue($user, 'core', 'lang');
 

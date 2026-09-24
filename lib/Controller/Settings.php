@@ -106,7 +106,27 @@ class Settings extends Controller {
 	) {
 		$types = $this->data->getNotificationTypes($this->l10n);
 
+		/*
+		 * Dieselbe Bedingung wie in displayPanel(): solange
+		 * enable_move_and_rename_activities nicht gesetzt ist, zeigt das
+		 * Formular für 'file_moved' und 'file_renamed' keine Kästchen an.
+		 * Diese Schleife lief trotzdem über die vollständige Typliste und
+		 * schrieb für jeden fehlenden Parameter eine 0 - ein Speichern der
+		 * Einstellungen schaltete die beiden Typen also still ab, ohne dass
+		 * der Nutzer sie je zu Gesicht bekam. Wird die Einstellung später
+		 * aktiviert, stehen sie auf "aus", und niemand weiß warum.
+		 */
+		$moveActivitiesEnabled = $this->config->getAppValue(
+			'activity',
+			'enable_move_and_rename_activities',
+			'no'
+		) === 'yes';
+
 		foreach ($types as $type => $data) {
+			if (!$moveActivitiesEnabled && ($type === 'file_moved' || $type === 'file_renamed')) {
+				continue;
+			}
+
 			if (!\is_array($data) || (isset($data['methods']) && \in_array(IExtension::METHOD_MAIL, $data['methods']))) {
 				$this->config->setUserValue(
 					$this->user->getUID(),

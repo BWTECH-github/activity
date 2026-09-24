@@ -86,9 +86,30 @@ class SendEmails extends Command {
 				break;
 			}
 
-			$this->sendBatch($users, $output);
+			/*
+			 * Gezaehlt wird, was ERLEDIGT wurde, nicht was geholt wurde.
+			 *
+			 * sendBatch() nimmt ein Konto nur dann in die Loeschliste auf, wenn
+			 * die Mail hinausging (oder gar keine Adresse hinterlegt ist). Ein
+			 * Konto, dessen Versand scheitert - der Mailserver ist nicht
+			 * erreichbar, die Adresse wird abgewiesen -, bleibt also in der
+			 * Warteschlange stehen. Die alte Bedingung prueft aber die Zahl der
+			 * GEHOLTEN Konten, und die ist dann unveraendert: derselbe Stapel
+			 * wird sofort wieder geholt, scheitert wieder, und der Befehl dreht
+			 * sich endlos, mit einem SMTP-Versuch und einem Protokolleintrag je
+			 * Runde. Kein Fortschritt heisst jetzt: Schluss.
+			 */
+			$erledigt = $this->sendBatch($users, $output);
 			if ($progress !== null) {
 				$progress->advance($batchCount);
+			}
+			if ($erledigt === 0) {
+				$output->writeln(
+					"\n" . $batchCount . ' Konto/Konten ließen sich nicht abarbeiten -'
+					. ' der Lauf bricht ab, damit er sich nicht endlos wiederholt.'
+					. ' Der Grund steht im Protokoll (app: activity).'
+				);
+				break;
 			}
 		} while ($batchCount > 0);
 

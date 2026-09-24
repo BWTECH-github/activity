@@ -1,6 +1,16 @@
 <?php
-/** @var \OCP\IL10N $l */
-/** @var array $_ */
+/**
+ * Textfassung der Sammelmail; folgt html.notification.php Satz für Satz.
+ *
+ * @var \OCP\IL10N $l
+ * @var array $_
+ *
+ * @copyright Copyright (c) 2026, BW-Tech GmbH
+ *
+ * Modified by BW-Tech GmbH on 2026-09-16.
+ * Changes:
+ *   - follow the HTML mail: same order, link to the activity stream at the end
+ */
 $l = $_['overwriteL10N'];
 
 print_unescaped($l->t('Hello %s,', [$_['username']]));
@@ -20,4 +30,12 @@ if ($_['skippedCount']) {
 	p("\n");
 }
 p("\n");
+
+// Derselbe Weg wie die Schaltfläche der HTML-Fassung.
+print_unescaped($l->t('Show all activities:'));
+p("\n");
+p($_['activity_link']);
+p("\n");
+p("\n");
+
 print_unescaped($this->inc('plain.mail.footer', ['app' => 'core']));

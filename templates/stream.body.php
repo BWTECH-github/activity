@@ -40,12 +40,25 @@ style('activity', 'style');
 		<p><?php p($l->t('This stream will show events like additions, changes & shares')); ?></p>
 	</div>
 
-	<div id="container" data-activity-filter="<?php p($_['filter']) ?>" data-avatars-enabled="<?php p($_['avatars']) ?>">
+	<?php
+	/*
+	 * Der Strom lädt beim Blättern nach, ohne dass die Seite wechselt. Ohne
+	 * Auszeichnung erfährt eine Sprachausgabe davon nichts: sie liest weiter
+	 * vor, was beim Laden der Seite da war, während unten dreißig neue Einträge
+	 * erscheinen. role="feed" benennt den Bereich als fortlaufende Liste, die
+	 * beiden Statuszeilen melden Laden und Ende.
+	 */
+	?>
+	<div id="container" role="feed" aria-busy="false"
+		aria-label="<?php p($l->t('Activities')); ?>"
+		data-activity-filter="<?php p($_['filter']) ?>" data-avatars-enabled="<?php p($_['avatars']) ?>">
 	</div>
 
-	<div id="loading_activities" class="icon-loading"></div>
+	<div id="loading_activities" class="icon-loading" role="status">
+		<span class="hidden-visually"><?php p($l->t('Loading activities…')); ?></span>
+	</div>
 
-	<div id="no_more_activities" class="hidden">
+	<div id="no_more_activities" class="hidden" role="status">
 		<?php p($l->t('No more events to load')) ?>
 	</div>
 </div>

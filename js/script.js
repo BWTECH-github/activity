@@ -39,6 +39,9 @@ $(function(){
 			$('#emptycontent').addClass('hidden');
 			$('#no_more_activities').addClass('hidden');
 			$('#loading_activities').removeClass('hidden');
+			// aria-busy sagt der Sprachausgabe, dass gleich Einträge
+			// dazukommen - sonst liest sie mitten im Aufbau vor.
+			$('#container').attr('aria-busy', 'true');
 			OCA.Activity.InfinitScrolling.ignoreScroll = 0;
 
 			this.$navigation.find('a[data-navigation=' + filter + ']').parent().addClass('active');
@@ -146,12 +149,14 @@ $(function(){
 					$emptyContent.find('p').text(t('activity', 'There are no events for this filter'));
 				}
 				$('#loading_activities').addClass('hidden');
+				$('#container').attr('aria-busy', 'false');
 				this.ignoreScroll = 1;
 
 			} else {
 				// Page is empty - No more activities :(
 				$('#no_more_activities').removeClass('hidden');
 				$('#loading_activities').addClass('hidden');
+				$('#container').attr('aria-busy', 'false');
 				this.ignoreScroll = 1;
 			}
 		},
@@ -256,8 +261,19 @@ $(function(){
 				if ($.trim($verweis.text()) !== '') {
 					return;
 				}
+				/*
+				 * .prop('href') statt .attr('href'): verglichen werden die
+				 * aufgelösten Adressen, nicht die rohen Attributwerte. Der
+				 * Betreff-Verweis entsteht aus dem link-Attribut des
+				 * <file>-Tags und ist absolut, der Vorschau-Verweis kommt aus
+				 * preview.link und ist relativ - als Zeichenketten waren sie nie
+				 * gleich, und der Guard traf in keinem einzigen Fall. Gemessen
+				 * am 16.09.2026: 36 von 36 Vorschau-Verweisen blieben im
+				 * Tastaturlauf stehen, obwohl daneben derselbe Verweis mit Namen
+				 * steht.
+				 */
 				if ($betreffVerweis.length
-					&& $betreffVerweis.attr('href') === $verweis.attr('href')) {
+					&& $betreffVerweis.prop('href') === $verweis.prop('href')) {
 					$verweis.attr({ tabindex: '-1', 'aria-hidden': 'true' });
 				} else if (betreff !== '') {
 					$verweis.attr('aria-label', betreff);
@@ -280,15 +296,43 @@ $(function(){
 				}
 			});
 
-			$element.find('.activity-more-link').on('click', function() {
-				var $moreElement = $(this),
-					activityId = $moreElement.closest('.box').data('activity-id'),
-					$subject = $moreElement.closest('.activitysubject');
+			/*
+			 * "und 3 mehr" aufklappen.
+			 *
+			 * parseMessage liegt in OCA.Activity.Formatter, nicht in diesem
+			 * Objekt - self.parseMessage war undefined, und jeder Klick endete
+			 * in "self.parseMessage is not a function". Zu sehen war davon
+			 * nichts: der Betreff blieb stehen, die verborgenen Dateinamen kamen
+			 * nie zum Vorschein. Zwei Methoden weiter oben (addActivity) steht
+			 * derselbe Aufruf richtig.
+			 */
+			$element.find('.activity-more-link')
+				// Ein Anker, der wie ein Schalter wirkt, braucht Rolle und
+				// Leertaste; Enter kommt beim Anker von selbst.
+				.attr('role', 'button')
+				.on('keydown', function(e) {
+					if (e.key === ' ' || e.key === 'Spacebar' || e.keyCode === 32) {
+						e.preventDefault();
+						$(this).trigger('click');
+					}
+				})
+				.on('click', function(e) {
+					// Ohne preventDefault haengt der Browser ein '#' an die
+					// Adresse und legt einen Verlaufseintrag an - der
+					// Filter-Handler weiter unten macht es richtig.
+					e.preventDefault();
 
-				var activity = self.activities[activityId];
-				$subject.html(self.parseMessage(activity.subject_prepared, true));
-				self.processElements($subject);
-			});
+					var $moreElement = $(this),
+						activityId = $moreElement.closest('.box').data('activity-id'),
+						$subject = $moreElement.closest('.activitysubject');
+
+					var activity = self.activities[activityId];
+					if (!activity) {
+						return;
+					}
+					$subject.html(OCA.Activity.Formatter.parseMessage(activity.subject_prepared, true));
+					self.processElements($subject);
+				});
 
 			$element.find('.has-tooltip').tooltip({
 				placement: 'bottom'

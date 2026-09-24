@@ -21,6 +21,8 @@
 
 namespace OCA\Activity;
 
+use OCA\Activity\Controller\OCSEndPoint;
+
 /**
  * Class Api
  *
@@ -35,7 +37,15 @@ class Api {
 		$data = $app->getContainer()->query('ActivityData');
 
 		$start = isset($_GET['start']) ? (int) $_GET['start'] : 0;
+		/*
+		 * Wie im OCS-Endpunkt gedeckelt: 'count' ging ungeprueft in
+		 * setMaxResults(), und jede gelieferte Zeile wird anschliessend voll
+		 * aufbereitet. Ein negativer Wert liess ausserdem die Abfrage mit einer
+		 * ungefangenen Ausnahme auflaufen, die Antwort blieb leer.
+		 */
 		$count = isset($_GET['count']) ? (int) $_GET['count'] : self::DEFAULT_LIMIT;
+		$count = \max(1, \min(OCSEndPoint::MAX_LIMIT, $count));
+		$start = \max(0, $start);
 		$user = $app->getContainer()->getServer()->getUserSession()->getUser()->getUID();
 
 		if ($start !== 0) {
