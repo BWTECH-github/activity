@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [2.8.5] - 2026-09-26
+
+### Added
+
+- `occ activity:rewrite-legacy-links --old-base-url <URL>` schreibt nach dem
+  Umzug einer Datenbank die Spalte `link` übernommener Aktivitäten auf diese
+  Instanz um. Die Altinstanz (10.x) hat sie absolut gespeichert, mit ihrem
+  Host und Webroot (`FilesHooks`: `linkToRouteAbsolute`); nach einem Host- oder
+  Webroot-Wechsel zeigten der RSS-Feed, die API für die Clients und der Strom
+  bei Einträgen ohne Dateiverweis auf die alte Adresse. Umgeschrieben wird nur,
+  was auf dem alten Host oder unter dem alten Webroot liegt; fremde Hosts und
+  Verweise dieser Instanz bleiben unberührt, ein zweiter Lauf ist ein No-op.
+  Die Tabelle wird in Stapeln über den Primärschlüssel gelesen, geänderte
+  Zeilen je Stapel in einer Transaktion geschrieben. Belegt in
+  `tests/unit/LegacyLinkRewriterTest.php` und
+  `tests/unit/Command/RewriteLegacyLinksTest.php`.
+
+### Changed
+
+- README: `activity_expire_days` steht in der `config.php`, nicht in der
+  Datenbank. Wer eine Datenbank umzieht, muss den Wert vor dem ersten Cron
+  übertragen, sonst löscht der mitgezogene Aufräumauftrag alles, was älter als
+  365 Tage ist.
+
 ## [2.8.4] - 2026-09-24
 
 Rückportiert aus der Redesign-Linie (dort 3.0.0), ohne deren neuen Mailrahmen.

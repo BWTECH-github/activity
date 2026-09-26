@@ -46,14 +46,34 @@ gestört werden möchte.
 | `OCA\Activity\BackgroundJob\EmailNotification` | verschickt die gesammelten E-Mails |
 | `OCA\Activity\BackgroundJob\ExpireActivities` | räumt alte Einträge ab |
 
-Beide laufen über den normalen Cron.
+Beide laufen über den normalen Cron. Der Aufräumauftrag läuft einmal am Tag und
+löscht Einträge, die älter sind als `activity_expire_days` Tage (`config.php`,
+Vorgabe 365).
+
+**Beim Umzug einer Datenbank:** Der Wert steht in der `config.php` der
+Altinstanz, nicht in der Datenbank. Der Aufräumauftrag kommt dagegen mit
+`oc_jobs` mit und läuft beim ersten Cron. Fehlt `activity_expire_days` dann in
+der neuen `config.php`, löscht er unwiderruflich alles, was älter als 365 Tage
+ist. Den Wert also übertragen, bevor der Cron zum ersten Mal läuft.
 
 ## Kommandozeile
 
 ```bash
 # den Mailversand sofort anstoßen, statt auf den Cron zu warten
 sudo -u www-data php8.4 occ activity:send-emails
+
+# nach dem Umzug einer Datenbank: Verweise übernommener Einträge, die auf
+# Host und Webroot der Altinstanz zeigen, auf diese Instanz umschreiben
+sudo -u www-data php8.4 occ activity:rewrite-legacy-links \
+  --old-base-url https://cloud.example.com/owncloud
 ```
+
+`activity:rewrite-legacy-links` ändert nur Verweise auf den alten Host oder
+unter dem alten Webroot; Anfrage und Anker bleiben erhalten. Die neue Adresse
+kommt aus `overwrite.cli.url`, abweichend mit `--new-base-url`. Verweise
+fremder Hosts und dieser Instanz bleiben unberührt, ein zweiter Lauf ändert
+nichts mehr. Die Verweise stehen im RSS-Feed je Eintrag, in der API für die
+Clients und im Strom bei Einträgen ohne Dateiverweis.
 
 ## Eigene Ereignisse beisteuern
 
