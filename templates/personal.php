@@ -47,7 +47,7 @@ style('activity', 'settings');
 						<?php if (!\in_array($method, $data['methods'])): ?> disabled="disabled"<?php endif; ?>
 						<?php if ($data[$method]): ?> checked="checked"<?php endif; ?> />
 					<label for="<?php p($activity) ?>_<?php p($method) ?>">
-						<span class="hidden-visually"><?php p($l->t('%1$s via %2$s', [\strip_tags($data['desc']), $methodName])); ?></span>
+						<span class="hidden-visually"><?php p($l->t('%1$s via %2$s', [\strip_tags($data['desc']), $l->t($methodName)])); ?></span>
 					</label>
 				</td>
 				<?php endforeach; ?>

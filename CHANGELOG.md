@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [3.0.1] - 2026-10-07
+
+Redesign-Linie: enthält main bis 2.8.5 (Merge, u. a. `occ activity:rewrite-legacy-links`).
+
+### Fixed
+
+- Sprache: Tooltip und Sprachausgabe des Einstellungs-Knopfs in der Aktivitäts-App („Settings“), die Sprachausgabe „RSS feed URL“ und die versteckten Beschriftungen der Häkchen in den Aktivitäts-Einstellungen („%1$s via %2$s“) fehlten in allen deutschen Katalogen. Die Häkchen nannten den Kanal außerdem englisch („… via Mail“); er läuft jetzt ebenfalls über den Katalog.
+- Spaltenkopf „Mail“ heißt in de, de_DE und de_CH „E-Mail“ (de_AT schon so).
+- de_DE: Einzahl der Sammelzeile „{parameterList} and {linkStart}ein weiterer{linkEnd}“ mit englischem „and“ → „und“.
+- Anrede: „Dir/Deine/Du“ in de und de_CH klein; die Mailzeile „If the button does not work …“ siezte in de_AT und de_CH.
+- de_AT: vier genutzte Texte ergänzt (Sammelzeilen im Stream, „List your own file actions in the stream“, „As soon as possible“).
+
 ## [3.0.0] - 2026-09-16
 
 Vollständiger Durchgang; die Befunde sind mit
