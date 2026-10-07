@@ -275,8 +275,8 @@ class Application extends App {
 				$server->getL10NFactory(),
 				$server->getConfig(),
 				// Fuer die Pruefung, ob das Konto hinter dem RSS-Token noch
-				// aktiv ist - die Route traegt @PublicPage, der Kern prueft dort
-				// nichts.
+				// aktiv ist - die Route traegt die Annotation PublicPage, der
+				// Kern prueft dort nichts.
 				$server->getUserManager(),
 				$c->query('CurrentUID')
 			);

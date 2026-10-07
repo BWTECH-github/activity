@@ -4,13 +4,17 @@
 # Aufbau wie in der Pruefung vom 16.09.2026: Token setzen, aktiv abrufen,
 # Konto sperren, erneut abrufen. Vorher lieferten beide Abrufe dieselben
 # Eintraege; jetzt muss der zweite "Your feed URL is invalid" sagen.
+#
+# Instanz, occ-Aufruf, Konto und Adresse lassen sich ueber die Umgebung
+# setzen, z. B.:
+#   INSTANZ=/opt/oc BASIS=http://127.0.0.1:8080 KONTO=probe bash rss-sperre.sh
 set -u
 
-INSTANZ=/opt/oco-schnell
-OCC="sudo -u www-data php $INSTANZ/occ"
-KONTO=oco-probe-nutzer
+INSTANZ=${INSTANZ:-/opt/oco-schnell}
+OCC=${OCC:-"sudo -u www-data php $INSTANZ/occ"}
+KONTO=${KONTO:-oco-probe-nutzer}
 TOKEN=PruefTokenSperre1234567890abcd   # genau 30 Zeichen
-BASIS=http://127.0.0.1:18130
+BASIS=${BASIS:-http://127.0.0.1:18130}
 
 laenge() { printf '%s' "$1" | wc -c; }
 echo "Tokenlaenge: $(laenge "$TOKEN") (muss 30 sein)"

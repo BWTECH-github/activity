@@ -124,9 +124,9 @@ class Feed extends Controller {
 			/*
 			 * Ein gesperrtes Konto darf hier nichts mehr lesen.
 			 *
-			 * Diese Route traegt @PublicPage; der Kern prueft die Anmeldung
-			 * deshalb nicht, und das Konto kommt allein ueber das RSS-Token
-			 * zustande. OC\Activity\Manager::getUserFromToken() fragt nur, ob
+			 * Diese Route traegt die Annotation PublicPage; der Kern prueft die
+			 * Anmeldung deshalb nicht, und das Konto kommt allein ueber das
+			 * RSS-Token zustande. OC\Activity\Manager::getUserFromToken() fragt nur, ob
 			 * der Wert 30 Zeichen lang ist und genau einem Konto gehoert -
 			 * nicht, ob dieses Konto noch aktiv ist.
 			 *

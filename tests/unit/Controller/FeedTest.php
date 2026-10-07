@@ -48,6 +48,9 @@ class FeedTest extends TestCase {
 	/** @var \OCP\IUserSession|\PHPUnit\Framework\MockObject\MockObject */
 	protected $session;
 
+	/** @var \OCP\IUserManager|\PHPUnit\Framework\MockObject\MockObject */
+	protected $userManager;
+
 	/** @var \OCP\IL10N */
 	protected $l10n;
 
@@ -75,6 +78,7 @@ class FeedTest extends TestCase {
 		$this->manager = $this->getMockBuilder('OCP\Activity\IManager')
 			->disableOriginalConstructor()
 			->getMock();
+		$this->userManager = $this->createMock('OCP\IUserManager');
 
 		/** @var $urlGenerator \OCP\IURLGenerator|\PHPUnit\Framework\MockObject\MockObject */
 		$urlGenerator = $this->getMockBuilder('OCP\IURLGenerator')
@@ -91,6 +95,7 @@ class FeedTest extends TestCase {
 			$this->manager,
 			\OC::$server->getL10NFactory(),
 			$this->config,
+			$this->userManager,
 			'test'
 		);
 	}
@@ -165,13 +170,51 @@ class FeedTest extends TestCase {
 		$this->assertStringContainsString($description, $renderedResponse);
 	}
 
-	protected function mockUserSession($user) {
+	/**
+	 * Ein gesperrtes oder verschwundenes Konto liest über sein RSS-Token
+	 * nichts mehr: die Antwort ist dieselbe wie bei einem ungültigen Token,
+	 * und die Daten werden gar nicht erst abgefragt.
+	 */
+	public function dataShowAccountNotUsable() {
+		return [
+			'gesperrt' => [false],
+			'verschwunden' => [null],
+		];
+	}
+
+	/**
+	 * @dataProvider dataShowAccountNotUsable
+	 *
+	 * @param bool|null $enabled null: das Konto gibt es nicht mehr
+	 */
+	public function testShowAccountNotUsable($enabled) {
+		$this->mockUserSession('test', $enabled);
+		$this->data->expects($this->never())
+			->method('get');
+
+		$renderedResponse = $this->controller->show()->render();
+
+		$l = Util::getL10N('activity');
+		$description = (string) $l->t('Your feed URL is invalid');
+		$this->assertStringContainsString($description, $renderedResponse);
+	}
+
+	/**
+	 * @param string $user
+	 * @param bool|null $enabled Zustand des Kontos; null: es gibt es nicht
+	 */
+	protected function mockUserSession($user, $enabled = true) {
 		$mockUser = $this->getMockBuilder('\OCP\IUser')
 			->disableOriginalConstructor()
 			->getMock();
 		$mockUser->expects($this->any())
 			->method('getUID')
 			->willReturn($user);
+		$mockUser->method('isEnabled')
+			->willReturn($enabled === true);
+		$this->userManager->method('get')
+			->with($user)
+			->willReturn($enabled === null ? null : $mockUser);
 
 		$this->session->expects($this->any())
 			->method('isLoggedIn')

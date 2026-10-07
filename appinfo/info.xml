@@ -48,5 +48,6 @@ This is a PHP 8.4 fork maintained by BW-Tech GmbH for owncloud.online.
   </settings>
   <commands>
     <command>OCA\Activity\Command\SendEmails</command>
+    <command>OCA\Activity\Command\RewriteLegacyLinks</command>
   </commands>
 </info>

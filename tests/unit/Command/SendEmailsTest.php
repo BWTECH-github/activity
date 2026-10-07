@@ -118,4 +118,34 @@ class SendEmailsTest extends TestCase {
 		$output = $tester->getDisplay();
 		$this->assertStringContainsString("Notification to user 'anon' has been not sent: {$exceptionMessage}", $output);
 	}
+
+	/**
+	 * Scheitert der Versand, bleibt das Konto in der Warteschlange und wird
+	 * sofort wieder geholt. Der Befehl drehte sich dann endlos, mit einem
+	 * Versandversuch und einem Protokolleintrag samt Stacktrace je Runde.
+	 * Ohne Fortschritt bricht er jetzt ab.
+	 */
+	public function testSendStopsWithoutProgress() {
+		$abrufe = 0;
+		$this->mqHandler->method('getAllUsers')
+			->willReturnCallback(function () use (&$abrufe) {
+				$abrufe++;
+				if ($abrufe > 3) {
+					throw new \RuntimeException('Endlosschleife: derselbe Stapel wird immer wieder geholt');
+				}
+				return [
+					['uid' => 'anon', 'email' => 'anon@im.org', 'max_mail_id' => 50],
+				];
+			});
+		$this->mqHandler->method('sendAllEmailsToUser')
+			->willThrowException(new \Exception('SMTP nicht erreichbar'));
+		$this->config->method('getUserValueForUsers')->willReturn([]);
+		$this->config->method('getSystemValue')->willReturn('en');
+
+		$tester = new CommandTester($this->sendEmails);
+		$tester->execute([]);
+
+		$this->assertSame(1, $abrufe);
+		$this->assertStringContainsString('der Lauf bricht ab', $tester->getDisplay());
+	}
 }
