@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [3.0.2] - 2026-10-08
+
+### Behoben
+
+- Aktivität (App und Seitenleiste der Dateien): Betreff und Text brechen um,
+  statt mit „…“ zu enden oder rechts abzureißen – lange Dateinamen, Adressen
+  und zusammengesetzte Wörter sind ganz lesbar. Der Name des Handelnden bricht
+  ebenfalls um.
+
 ## [3.0.1] - 2026-10-07
 
 Redesign-Linie: enthält main bis 2.8.5 (Merge, u. a. `occ activity:rewrite-legacy-links`).
