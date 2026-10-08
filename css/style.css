@@ -3,20 +3,20 @@
 	margin-bottom: 16px;
 }
 
+/* Betreff und Text brechen um (lange Dateinamen, Adressen, zusammengesetzte
+   Wörter), statt mit „…“ oder hart am Rand zu enden. */
 .activitysubject {
 	display: inline-block;
 	vertical-align: text-bottom;
 	width: 85%;
 	margin-bottom: 5px;
 	margin-left: 5px;
-	text-overflow: ellipsis;
-	overflow: hidden;
+	overflow-wrap: anywhere;
 }
 .activitymessage {
 	margin-left: 25px;
 	color:#666;
-	text-overflow: ellipsis;
-	overflow: hidden;
+	overflow-wrap: anywhere;
 }
 
 #no_more_activities .head {
@@ -103,9 +103,7 @@
 }
 
 .box .user{
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	overflow-wrap: anywhere;
 	float: left;
 	display: inline-block;
 	width: 180px;
