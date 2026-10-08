@@ -14,12 +14,12 @@
     "Personal activity feed for %s" : "Persönlicher Feed der Aktivitäten für %s",
     "Your feed URL is invalid" : "Deine Feed-URL ist ungültig",
     "Your settings have been updated." : "Deine Einstellungen wurden aktualisiert.",
-    "Mail" : "Mail",
+    "Mail" : "E-Mail",
     "Stream" : "Stream",
     "\"remote user\"" : "„Externer Benutzer“",
     "Activity notification" : "Benachrichtigung über die Aktivitäten",
     "All Activities" : "Alle Aktivitäten",
-    "Activities by you" : "Aktivitäten von Dir",
+    "Activities by you" : "Aktivitäten von dir",
     "Activities by others" : "Aktivitäten von Anderen",
     "%s and %s" : "%s und %s",
     "Hello %s," : "Hallo %s,",
@@ -31,8 +31,8 @@
     "_and %n more _::_and %n more _" : ["und %n mehr ","und %n mehr "],
     "Activity" : "Aktivität",
     "List your own file actions in the stream" : "Deine eigenen Datei-Aktivitäten im Stream auflisten",
-    "Notify about your own actions via email" : "Über Deine eigenen Aktivitäten via E-Mail benachrichtigen",
-    "You need to set up your email address before you can receive notification emails." : "Bevor Du E-Mail-Benachrichtigungen empfangen kannst, musst Du Deine E-Mail-Adresse einrichten.",
+    "Notify about your own actions via email" : "Über deine eigenen Aktivitäten per E-Mail benachrichtigen",
+    "You need to set up your email address before you can receive notification emails." : "Bevor du E-Mail-Benachrichtigungen empfangen kannst, musst du deine E-Mail-Adresse einrichten.",
     "Send emails:" : "Sende E-Mails:",
     "As soon as possible" : "Schnellstmöglich",
     "Hourly" : "Stündlich",
@@ -48,6 +48,9 @@
     "If the button does not work, open this address:" : "Falls die Schaltfläche nicht funktioniert, öffne diese Adresse:",
     "Loading activities…" : "Aktivitäten werden geladen…",
     "Switch all %s notifications on or off" : "Alle %s-Benachrichtigungen ein- oder ausschalten",
-    "Switch this row on or off: %s" : "Diese Zeile ein- oder ausschalten: %s"
+    "Switch this row on or off: %s" : "Diese Zeile ein- oder ausschalten: %s",
+    "Settings" : "Einstellungen",
+    "RSS feed URL" : "RSS-Feed-Adresse",
+    "%1$s via %2$s" : "%1$s per %2$s"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [3.0.1] - 2026-10-07
+
+Redesign-Linie: enthält main bis 2.8.5 (Merge, u. a. `occ activity:rewrite-legacy-links`).
+
+### Fixed
+
+- Sprache: Tooltip und Sprachausgabe des Einstellungs-Knopfs in der Aktivitäts-App („Settings“), die Sprachausgabe „RSS feed URL“ und die versteckten Beschriftungen der Häkchen in den Aktivitäts-Einstellungen („%1$s via %2$s“) fehlten in allen deutschen Katalogen. Die Häkchen nannten den Kanal außerdem englisch („… via Mail“); er läuft jetzt ebenfalls über den Katalog.
+- Spaltenkopf „Mail“ heißt in de, de_DE und de_CH „E-Mail“ (de_AT schon so).
+- de_DE: Einzahl der Sammelzeile „{parameterList} and {linkStart}ein weiterer{linkEnd}“ mit englischem „and“ → „und“.
+- Anrede: „Dir/Deine/Du“ in de und de_CH klein; die Mailzeile „If the button does not work …“ siezte in de_AT und de_CH.
+- de_AT: vier genutzte Texte ergänzt (Sammelzeilen im Stream, „List your own file actions in the stream“, „As soon as possible“).
+
 ## [3.0.0] - 2026-09-16
 
 Vollständiger Durchgang; die Befunde sind mit
@@ -75,6 +87,90 @@ found“ ab. Für 11.0.x bleibt 2.8.x (Zweig `main`).
   läuft. Der Container konnte den untypisierten Parameter `$isCLI` nicht füllen,
   er blieb `null`, und der Lauf nahm immer den Web-Zweig mit 25 Mails je
   Durchgang — bei vielen Konten wurde die Warteschlange nie leer.
+
+## [2.8.5] - 2026-09-26
+
+### Added
+
+- `occ activity:rewrite-legacy-links --old-base-url <URL>` schreibt nach dem
+  Umzug einer Datenbank die Spalte `link` übernommener Aktivitäten auf diese
+  Instanz um. Die Altinstanz (10.x) hat sie absolut gespeichert, mit ihrem
+  Host und Webroot (`FilesHooks`: `linkToRouteAbsolute`); nach einem Host- oder
+  Webroot-Wechsel zeigten der RSS-Feed, die API für die Clients und der Strom
+  bei Einträgen ohne Dateiverweis auf die alte Adresse. Umgeschrieben wird nur,
+  was auf dem alten Host oder unter dem alten Webroot liegt; fremde Hosts und
+  Verweise dieser Instanz bleiben unberührt, ein zweiter Lauf ist ein No-op.
+  Die Tabelle wird in Stapeln über den Primärschlüssel gelesen, geänderte
+  Zeilen je Stapel in einer Transaktion geschrieben. Belegt in
+  `tests/unit/LegacyLinkRewriterTest.php` und
+  `tests/unit/Command/RewriteLegacyLinksTest.php`.
+
+### Changed
+
+- README: `activity_expire_days` steht in der `config.php`, nicht in der
+  Datenbank. Wer eine Datenbank umzieht, muss den Wert vor dem ersten Cron
+  übertragen, sonst löscht der mitgezogene Aufräumauftrag alles, was älter als
+  365 Tage ist.
+
+## [2.8.4] - 2026-09-24
+
+Rückportiert aus der Redesign-Linie (dort 3.0.0), ohne deren neuen Mailrahmen.
+Gegen den 11.0-Kern geprüft mit `tests/visual/pruefe-aktivitaeten.js` (15/15)
+und den Unit-Tests (409/409, vorher 398/398). Die Feed-Sperre ist in
+`tests/unit/Controller/FeedTest.php` belegt (gesperrtes und gelöschtes Konto);
+`tests/visual/rss-sperre.sh` stellt sie an einer laufenden Instanz nach.
+
+### Security
+
+- **Ein gesperrtes Konto liest über sein RSS-Token nicht mehr mit.** Die Route
+  trägt die Annotation PublicPage, der Kern prüft dort keine Anmeldung, und
+  `getUserFromToken()` fragt nur nach Länge und Eindeutigkeit des Tokens, nicht
+  danach, ob das Konto noch aktiv ist. Damit überlebte der Feed jede Sperrung:
+  Sitzungen, App-Passwörter und WebDAV waren abgeschnitten, der Feed lieferte
+  weiter, auch Einträge, die nach der Sperre entstanden. Ein Passwortwechsel
+  half nicht, das Token hängt nicht daran. Gesperrte und gelöschte Konten
+  bekommen jetzt dieselbe Antwort wie ein ungültiges Token.
+- Die Anrede der HTML-Sammelmail gab den Anzeigenamen unmaskiert aus. Ein
+  Administrator kann Namen fremder Konten setzen; damit stand fremdes Markup in
+  einer Mail, die der Server unter der Marke der Instanz verschickt.
+- `limit` und `count` der Aktivitäts-APIs sind auf 1 bis 200 gedeckelt. Sie
+  gingen ungeprüft in `setMaxResults()`, und jede gelieferte Zeile wird voll
+  aufbereitet; ein angemeldeter Nutzer konnte mit einem Aufruf die halbe
+  Tabelle anfordern. Negative Werte ließen die Abfrage mit einer ungefangenen
+  Ausnahme auflaufen.
+
+### Fixed
+
+- `occ activity:send-emails` drehte sich endlos, sobald ein Versand scheiterte:
+  ein gescheitertes Konto bleibt in der Warteschlange und wird sofort wieder
+  geholt, die Abbruchbedingung zählte aber die *geholten* statt der
+  *erledigten* Konten. Jede Runde schrieb einen Fehler samt Stacktrace ins
+  Protokoll. Jetzt endet der Lauf mit einer Meldung, sobald ein Stapel keinen
+  Fortschritt mehr bringt.
+- Der Sammelmail-Auftrag erkennt jetzt selbst, ob er auf der Kommandozeile
+  läuft. Der Container konnte den untypisierten Parameter `$isCLI` nicht
+  füllen, er blieb `null`, und der Lauf nahm immer den Web-Zweig mit 25 Konten
+  je Durchgang; bei vielen Konten wurde die Warteschlange nie leer. Die
+  CLI-Schleife bricht ab, sobald ein voller Stapel nichts erledigt hat, sonst
+  hätte sie sich bei einem nicht erreichbaren Mailserver genauso endlos
+  gedreht wie `activity:send-emails`.
+- „und 3 mehr" im Strom ließ sich nicht aufklappen: `parseMessage` liegt in
+  `OCA.Activity.Formatter`, der Aufruf ging an das falsche Objekt. Der Schalter
+  trägt jetzt außerdem `role="button"`, reagiert auf die Leertaste und hängt
+  kein `#` an die Adresse.
+- Der Guard gegen doppelte Vorschau-Verweise aus 2.8.3 griff nie: er verglich
+  rohe `href`-Attribute, aber der Betreff-Verweis ist absolut und der
+  Vorschau-Verweis relativ. Verglichen werden jetzt die aufgelösten Adressen.
+- Der Strom meldet Nachladen und Ende an Sprachausgaben (`role="feed"`,
+  `aria-busy`, zwei Statuszeilen).
+- Die Umschalter auf der Einstellungsseite sind echte Schalter mit eigenem
+  Namen statt anklickbarer Tabellenzellen ohne Rolle und ohne Zeigerhand.
+- Das Speichern der Einstellungen schaltete `file_moved` und `file_renamed`
+  still ab, solange `enable_move_and_rename_activities` nicht gesetzt ist: das
+  Formular zeigt diese Typen gar nicht an, die Schleife schrieb trotzdem eine 0.
+- Die Mailvorlagen werden mit der Sprache des Empfängers erzeugt, damit auch
+  eingebundene Kernbausteine (Fußzeile) in dieser Sprache erscheinen. Die
+  Textfassung endet mit einem Verweis auf den Aktivitätenstrom.
 
 ## [2.8.3] - 2026-08-16
 

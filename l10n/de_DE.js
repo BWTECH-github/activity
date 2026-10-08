@@ -7,7 +7,7 @@ OC.L10N.register(
     "Load more activities" : "Weitere Aktivitäten laden",
     ", " : ", ",
     "{parameterList} and {lastParameter}" : "{parameterList} und {lastParameter}",
-    "_{parameterList} and {linkStart}%n more{linkEnd}_::_{parameterList} and {linkStart}%n more{linkEnd}_" : ["{parameterList} and {linkStart}ein weiterer{linkEnd}","{parameterList} und {linkStart}%n weitere{linkEnd}"],
+    "_{parameterList} and {linkStart}%n more{linkEnd}_::_{parameterList} and {linkStart}%n more{linkEnd}_" : ["{parameterList} und {linkStart}ein weiterer{linkEnd}","{parameterList} und {linkStart}%n weitere{linkEnd}"],
     "in {directory}" : "in {directory}",
     "This stream will show events like additions, changes & shares" : "Dieser Stream zeigt Ereignisse wie Hinzugekommenes, Änderungen und Freigaben an",
     "There are no events for this filter" : "Keine Ereignisse für diesen Filter vorhanden",
@@ -16,7 +16,7 @@ OC.L10N.register(
     "Personal activity feed for %s" : "Persönlicher Feed der Aktivitäten für %s",
     "Your feed URL is invalid" : "Ihre Feed-URL ist ungültig",
     "Your settings have been updated." : "Ihre Einstellungen wurden aktualisiert.",
-    "Mail" : "Mail",
+    "Mail" : "E-Mail",
     "Stream" : "Stream",
     "\"remote user\"" : "„Externer Benutzer“",
     "Activity notification" : "Benachrichtigung über die Aktivitäten",
@@ -50,6 +50,9 @@ OC.L10N.register(
     "If the button does not work, open this address:" : "Falls die Schaltfläche nicht funktioniert, öffnen Sie diese Adresse:",
     "Loading activities…" : "Aktivitäten werden geladen…",
     "Switch all %s notifications on or off" : "Alle %s-Benachrichtigungen ein- oder ausschalten",
-    "Switch this row on or off: %s" : "Diese Zeile ein- oder ausschalten: %s"
+    "Switch this row on or off: %s" : "Diese Zeile ein- oder ausschalten: %s",
+    "Settings" : "Einstellungen",
+    "RSS feed URL" : "RSS-Feed-Adresse",
+    "%1$s via %2$s" : "%1$s per %2$s"
 },
 "nplurals=2; plural=(n != 1);");

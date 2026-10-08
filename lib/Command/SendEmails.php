@@ -105,7 +105,7 @@ class SendEmails extends Command {
 			}
 			if ($erledigt === 0) {
 				$output->writeln(
-					"\n" . $batchCount . ' Konto/Konten liessen sich nicht abarbeiten -'
+					"\n" . $batchCount . ' Konto/Konten ließen sich nicht abarbeiten -'
 					. ' der Lauf bricht ab, damit er sich nicht endlos wiederholt.'
 					. ' Der Grund steht im Protokoll (app: activity).'
 				);

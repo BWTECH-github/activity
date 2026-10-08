@@ -18,7 +18,7 @@ This is a PHP 8.4 fork maintained by BW-Tech GmbH for owncloud.online.
   </description>
   <licence>AGPL</licence>
   <author>ownCloud contributors, modified by BW-Tech GmbH</author>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
   <default_enable/>
   <types>
     <filesystem/>
@@ -48,5 +48,6 @@ This is a PHP 8.4 fork maintained by BW-Tech GmbH for owncloud.online.
   </settings>
   <commands>
     <command>OCA\Activity\Command\SendEmails</command>
+    <command>OCA\Activity\Command\RewriteLegacyLinks</command>
   </commands>
 </info>
