@@ -149,7 +149,9 @@
 				if (useHtml) {
 					var userString = '<strong>' + displayName +  '</strong>';
 					if (self.isAvatarsEnabled()) {
-						userString = '<div class="avatar" data-user="' + userId + '" data-user-display-name="' + displayName + '"></div>' + userString;
+						// aria-hidden: der Platzhalter trägt den Anfangsbuchstaben als
+						// Text, eine Sprachausgabe las „T Tom Miller“. Der Name folgt.
+						userString = '<div class="avatar" aria-hidden="true" data-user="' + userId + '" data-user-display-name="' + displayName + '"></div>' + userString;
 					}
 
 					return userString;

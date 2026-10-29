@@ -60,6 +60,8 @@ function pruefe(name, ok, zusatz) {
 			// Ein Feed darf nur Artikel enthalten; jeder Tag trägt sein Datum als Namen.
 			artikel: behaelter ? Array.from(behaelter.children).every((c) => c.getAttribute('role') === 'article'
 				&& !!document.getElementById(c.getAttribute('aria-labelledby') || '-')) : false,
+			// Avatare sind Schmuck neben dem Namen
+			avatareLaut: Array.from(document.querySelectorAll('#container .avatar')).filter((a) => a.getAttribute('aria-hidden') !== 'true').length,
 		};
 	});
 
@@ -71,6 +73,7 @@ function pruefe(name, ok, zusatz) {
 	pruefe('Die Schlusszeile ist eine Statusmeldung', strom.endeRolle === 'status');
 	pruefe('Der Strom zeigt Einträge', strom.eintraege > 0, `${strom.eintraege} Einträge`);
 	pruefe('Jeder Tag im Strom ist ein benannter Artikel', strom.artikel);
+	pruefe('Avatare sind für Hilfsmittel ausgeblendet', strom.avatareLaut === 0, `${strom.avatareLaut} hörbar`);
 
 	/* ---------- 2. Vorschau-Verweise doppeln den Betreff nicht ---------- */
 

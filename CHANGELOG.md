@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [3.0.4] - 2026-10-29
+
+### Behoben
+
+- Aktivitätsstrom und Seitenleiste: Avatare werden von Sprachausgaben nicht mehr mitgelesen.
+
 ## [3.0.3] - 2026-10-29
 
 ### Behoben
