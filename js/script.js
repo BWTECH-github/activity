@@ -37,6 +37,7 @@ $(function(){
 			OCA.Activity.InfinitScrolling.$container.animate({ scrollTop: 0 }, 'slow');
 			OCA.Activity.InfinitScrolling.$container.children().remove();
 			$('#emptycontent').addClass('hidden');
+			$('#container').removeClass('hidden');
 			$('#no_more_activities').addClass('hidden');
 			$('#loading_activities').removeClass('hidden');
 			// aria-busy sagt der Sprachausgabe, dass gleich Einträge
@@ -149,7 +150,10 @@ $(function(){
 					$emptyContent.find('p').text(t('activity', 'There are no events for this filter'));
 				}
 				$('#loading_activities').addClass('hidden');
-				$('#container').attr('aria-busy', 'false');
+				// Ein Feed ohne Artikel ist für Hilfsmittel eine leere Liste ohne
+				// Sinn (axe aria-required-children); den Leerzustand erklärt
+				// #emptycontent, der Feed tritt bis zum nächsten Laden zurück.
+				$('#container').attr('aria-busy', 'false').addClass('hidden');
 				this.ignoreScroll = 1;
 
 			} else {
@@ -188,8 +192,12 @@ $(function(){
 					}
 				}
 
-				var content = '<div class="section activity-section group" data-date="' + escapeHTML(dayOfYear) + '">' + "\n"
-					+'	<h2>'+"\n"
+				// role="article": #container ist ein role="feed", und ein Feed
+				// darf nur Artikel enthalten (WCAG 4.1.2, axe aria-required-children).
+				// Ein Tag ist ein Artikel, sein Datum der Name.
+				var dayId = 'activity-day-' + String(dayOfYear).replace(/[^0-9A-Za-z_-]/g, '-');
+				var content = '<div class="section activity-section group" role="article" aria-labelledby="' + escapeHTML(dayId) + '" data-date="' + escapeHTML(dayOfYear) + '">' + "\n"
+					+'	<h2 id="' + escapeHTML(dayId) + '">'+"\n"
 					+'		<span class="has-tooltip" title="' + escapeHTML(dateOfDay) + '">' + escapeHTML(displayDate) + '</span>' + "\n"
 					+'	</h2>' + "\n"
 					+'	<div class="boxcontainer">' + "\n"

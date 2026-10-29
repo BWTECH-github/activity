@@ -15,7 +15,7 @@
 		'<ul class="activities hidden">' +
 		'    <li class="empty">{{emptyMessage}}</li>' +
 		'</ul>' +
-		'<input type="button" class="showMore" value="{{moreLabel}}"' +
+		'<input type="button" class="showMore" value="{{moreLabel}}" />' +
 		'</div>';
 	var ACTIVITY_TEMPLATE =
 		'    <li class="activity box">' +

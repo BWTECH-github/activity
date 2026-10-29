@@ -57,6 +57,9 @@ function pruefe(name, ok, zusatz) {
 			ladenText: laden ? laden.textContent.trim().slice(0, 40) : '',
 			endeRolle: ende ? ende.getAttribute('role') : null,
 			eintraege: document.querySelectorAll('#container .box').length,
+			// Ein Feed darf nur Artikel enthalten; jeder Tag trägt sein Datum als Namen.
+			artikel: behaelter ? Array.from(behaelter.children).every((c) => c.getAttribute('role') === 'article'
+				&& !!document.getElementById(c.getAttribute('aria-labelledby') || '-')) : false,
 		};
 	});
 
@@ -67,6 +70,7 @@ function pruefe(name, ok, zusatz) {
 		strom.ladenText);
 	pruefe('Die Schlusszeile ist eine Statusmeldung', strom.endeRolle === 'status');
 	pruefe('Der Strom zeigt Einträge', strom.eintraege > 0, `${strom.eintraege} Einträge`);
+	pruefe('Jeder Tag im Strom ist ein benannter Artikel', strom.artikel);
 
 	/* ---------- 2. Vorschau-Verweise doppeln den Betreff nicht ---------- */
 
@@ -138,6 +142,10 @@ function pruefe(name, ok, zusatz) {
 			alleBenannt: alle.every((e) => (e.getAttribute('aria-label') || '').length > 3),
 			fokussierbar: document.activeElement === erster,
 			zeiger: erster ? getComputedStyle(erster).cursor : '-',
+			// Die Kernregel für Knöpfe im Einstellungsinhalt machte aus jedem
+			// Umschalter eine Kapsel mit fetter Schrift (Befund 29.10.2026).
+			kapseln: alle.filter((e) => parseFloat(getComputedStyle(e).borderTopWidth) > 0
+				|| (e.closest('tbody') && Number(getComputedStyle(e).fontWeight) >= 600)).length,
 		};
 	});
 
@@ -146,21 +154,33 @@ function pruefe(name, ok, zusatz) {
 	pruefe('Jeder Umschalter hat einen Namen', umschalter.alleBenannt);
 	pruefe('Der Umschalter ist mit der Tastatur erreichbar', umschalter.fokussierbar,
 		`Zeiger: ${umschalter.zeiger}`);
+	pruefe('Die Umschalter sehen wie Text aus, nicht wie Kapseln', umschalter.kapseln === 0,
+		`${umschalter.kapseln} Kapseln`);
 
 	// Wirkt er auch? Zustand vorher merken, umschalten, vergleichen.
 	const wirkung = await seite.evaluate(() => {
 		const kaestchen = () => Array.from(
 			document.querySelectorAll('#activity_notifications input.email:not(:disabled)')
 		);
-		const vorher = kaestchen().filter((c) => c.checked).length;
+		const vorherStand = kaestchen().map((c) => c.checked);
+		const vorher = vorherStand.filter(Boolean).length;
 		const schalter = document.querySelector('.activity_select_group');
 		if (schalter) { schalter.click(); }
 		return new Promise((fertig) => {
 			window.setTimeout(() => {
 				const nachher = kaestchen().filter((c) => c.checked).length;
-				// Zurückschalten, damit der Test nichts hinterlässt.
-				if (schalter) { schalter.click(); }
-				window.setTimeout(() => fertig({ vorher: vorher, nachher: nachher }), 600);
+				// Zurückstellen, damit der Test nichts hinterlässt: ein zweiter
+				// Klick auf den Spaltenschalter schaltet alle AUS (nicht zurück),
+				// deshalb jedes Kästchen einzeln auf seinen Stand von vorher.
+				// Nacheinander: jede Änderung schickt das ganze Formular.
+				const zurueck = kaestchen().filter((c, i) => c.checked !== vorherStand[i]);
+				const naechstes = () => {
+					const c = zurueck.shift();
+					if (!c) { window.setTimeout(() => fertig({ vorher: vorher, nachher: nachher }), 800); return; }
+					c.click();
+					window.setTimeout(naechstes, 500);
+				};
+				naechstes();
 			}, 700);
 		});
 	});

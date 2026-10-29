@@ -21,3 +21,44 @@ table.activitysettings td.small label {
 	height: 100%;
 	display: block;
 }
+
+/*
+ * Spaltenkopf- und Zeilenschalter (templates/personal.php) sind echte
+ * Schalter, sollen aber wie der Kopf- bzw. Zellentext aussehen, der sie
+ * vorher waren. Die Kernregel für Knöpfe im Einstellungsinhalt
+ * (#body-settings.oco-shell #app-content button:not(...)) macht aus jedem
+ * <button> eine Kapsel mit 600er Schrift; sie trägt zwei Kennungen, daher
+ * hier drei. Den Fokusring bringt die Kernregel button:focus-visible.
+ */
+#body-settings.oco-shell #app-content #activity_notifications .activity_select_group {
+	display: inline-block;
+	box-sizing: border-box;
+	min-height: 24px;
+	margin: 0;
+	padding: 2px 4px;
+	border: 0;
+	border-radius: var(--oco-radius-xs);
+	background: none;
+	font: inherit;
+	letter-spacing: inherit;
+	text-transform: inherit;
+	color: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+#body-settings.oco-shell #app-content #activity_notifications tbody .activity_select_group {
+	display: block;
+	width: 100%;
+	padding: var(--oco-space-1) 0;
+	font: 400 14px/1.4 var(--oco-font-text);
+	color: var(--oco-text-primary);
+}
+
+#body-settings.oco-shell #app-content #activity_notifications tbody td:last-child {
+	padding-right: var(--oco-space-4);
+}
+
+#body-settings.oco-shell #app-content #activity_notifications .activity_select_group:hover {
+	text-decoration: underline;
+}
