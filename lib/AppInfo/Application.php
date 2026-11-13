@@ -153,14 +153,11 @@ class Application extends App {
 		$container->registerService('Navigation', function (IContainer $c) {
 			/** @var \OC\Server $server */
 			$server = $c->query('ServerContainer');
-			$rssToken = ($c->query('CurrentUID') !== '') ? $server->getConfig()->getUserValue($c->query('CurrentUID'), 'activity', 'rsstoken') : '';
-
 			return new Navigation(
 				$c->query('OCP\IL10N'),
 				$server->getActivityManager(),
 				$server->getURLGenerator(),
-				$c->query('CurrentUID'),
-				$rssToken
+				$c->query('CurrentUID')
 			);
 		});
 

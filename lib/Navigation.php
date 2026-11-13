@@ -48,9 +48,6 @@ class Navigation {
 	/** @var string */
 	protected $user;
 
-	/** @var string */
-	protected $rssLink;
-
 	/**
 	 * Construct
 	 *
@@ -58,7 +55,6 @@ class Navigation {
 	 * @param IManager $manager
 	 * @param IURLGenerator $URLGenerator
 	 * @param string $user
-	 * @param string $rssToken
 	 * @param null|string $active Navigation entry that should be marked as active
 	 */
 	public function __construct(
@@ -66,7 +62,6 @@ class Navigation {
 		IManager $manager,
 		IURLGenerator $URLGenerator,
 		$user,
-		$rssToken,
 		$active = 'all'
 	) {
 		$this->l = $l;
@@ -74,12 +69,6 @@ class Navigation {
 		$this->URLGenerator = $URLGenerator;
 		$this->user = $user;
 		$this->active = $active;
-
-		if ($rssToken) {
-			$this->rssLink = $this->URLGenerator->linkToRouteAbsolute('activity.Feed.show', ['token' => $rssToken]);
-		} else {
-			$this->rssLink = '';
-		}
 	}
 
 	/**
@@ -102,7 +91,6 @@ class Navigation {
 
 		$template->assign('activeNavigation', $active);
 		$template->assign('navigations', $entries);
-		$template->assign('rssLink', $this->rssLink);
 
 		return $template;
 	}

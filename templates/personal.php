@@ -95,3 +95,10 @@ style('activity', 'settings');
 		<option value="2"<?php if ($_['setting_batchtime'] === \OCA\Activity\UserSettings::EMAIL_SEND_WEEKLY): ?> selected="selected"<?php endif; ?>><?php p($l->t('Weekly')); ?></option>
 	</select>
 </form>
+
+<div id="activity_feed" class="section">
+	<input type="checkbox" id="enable_rss" class="checkbox"<?php if ($_['rss_link']): ?> checked="checked"<?php endif; ?> />
+	<label for="enable_rss"><?php p($l->t('Enable RSS feed')); ?></label>
+	<input id="rssurl" type="text" readonly="readonly" aria-label="<?php p($l->t('RSS feed URL')); ?>"
+		value="<?php p($_['rss_link']); ?>"<?php if (!$_['rss_link']): ?> class="hidden"<?php endif; ?> />
+</div>

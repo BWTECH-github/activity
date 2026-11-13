@@ -26,4 +26,16 @@ $(document).ready(function() {
 
 		saveSettings();
 	});
+
+	$('#enable_rss').change(function () {
+		var $url = $('#rssurl');
+		$url.toggleClass('hidden', !this.checked);
+		$.post(OC.generateUrl('/apps/activity/settings/feed'), 'enable=' + this.checked, function(response) {
+			$url.val(response.data.rsslink);
+		});
+	});
+
+	$('#rssurl').on('click', function () {
+		$(this).select();
+	});
 });

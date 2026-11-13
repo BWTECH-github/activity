@@ -203,3 +203,11 @@
 	filter: alpha(opacity=50);
 	opacity: .5;
 }
+
+/* Filter über dem Strom: Chips im Muster des Kerns, mehrzeilig statt rollend */
+.activity-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--oco-space-2);
+	margin-bottom: var(--oco-space-4);
+}

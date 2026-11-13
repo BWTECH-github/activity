@@ -227,6 +227,7 @@ class Settings extends Controller {
 			'activity_email'	=> $this->user->getEMailAddress(),
 
 			'setting_batchtime'	=> $settingBatchTime,
+			'rss_link'			=> $this->getFeedLink(),
 
 			'notify_self'		=> $this->userSettings->getUserSetting($this->user->getUID(), 'setting', 'self'),
 			'notify_selfemail'	=> $this->userSettings->getUserSetting($this->user->getUID(), 'setting', 'selfemail'),
@@ -236,6 +237,17 @@ class Settings extends Controller {
 				IExtension::METHOD_STREAM => $this->l10n->t('Stream'),
 			],
 		], '');
+	}
+
+	/**
+	 * @return string Adresse des Feeds, leer wenn der Feed aus ist
+	 */
+	protected function getFeedLink() {
+		$token = $this->config->getUserValue($this->user->getUID(), 'activity', 'rsstoken');
+		if ($token === '') {
+			return '';
+		}
+		return $this->urlGenerator->linkToRouteAbsolute('activity.Feed.show', ['token' => $token]);
 	}
 
 	/**

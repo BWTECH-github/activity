@@ -36,7 +36,6 @@ class NavigationTest extends TestCase {
 		return [
 			['all'],
 			['all', 'self'],
-			['all', 'self', 'thisIsTheRSSToken'],
 			['random'],
 		];
 	}
@@ -44,7 +43,7 @@ class NavigationTest extends TestCase {
 	/**
 	 * @dataProvider getTemplateData
 	 */
-	public function testGetTemplate($constructorActive, $forceActive = null, $rssToken = '') {
+	public function testGetTemplate($constructorActive, $forceActive = null) {
 		$activityLanguage = \OCP\Util::getL10N('activity', 'en');
 		$activityManager = new \OC\Activity\Manager(
 			$this->createMock('OCP\IRequest'),
@@ -59,20 +58,15 @@ class NavigationTest extends TestCase {
 			$activityManager,
 			\OC::$server->getURLGenerator(),
 			'test',
-			$rssToken,
 			$constructorActive
 		);
 		$output = $navigation->getTemplate($forceActive)->fetchPage();
 
-		// Get only the template part with the navigation links
-		$navigationLinks = \substr($output, \strpos($output, '<ul>') + 4);
-		$navigationLinks = \substr($navigationLinks, 0, \strrpos($navigationLinks, '</li>'));
-
 		// Remove tabs and new lines
-		$navigationLinks = \str_replace(["\t", "\r", "\n"], '', $navigationLinks);
+		$output = \str_replace(["\t", "\r", "\n"], '', $output);
 
-		// Turn the list of links into an array
-		$navigationEntries = \explode('</li>', $navigationLinks);
+		// Turn the chips into an array
+		$navigationEntries = \explode('</button>', $output);
 
 		$links = $navigation->getLinkList();
 
@@ -82,14 +76,13 @@ class NavigationTest extends TestCase {
 			foreach ($navigationEntries as $navigationEntry) {
 				if (\strpos($navigationEntry, 'data-navigation="' . $link['id'] . '"') !== false) {
 					$found = true;
-					$this->assertStringContainsString(
-						'href="' . $link['url'] . '">' . $link['name']. '</a>',
-						$navigationEntry
-					);
+					$this->assertStringContainsString($link['name'], $navigationEntry);
 					if ($forceActive == $link['id'] || ($forceActive == null && $constructorActive == $link['id'])) {
-						$this->assertStringStartsWith('<li class="active">', $navigationEntry);
+						$this->assertStringContainsString('oco-chip--on', $navigationEntry);
+						$this->assertStringContainsString('aria-pressed="true"', $navigationEntry);
 					} else {
-						$this->assertStringStartsWith('<li>', $navigationEntry);
+						$this->assertStringNotContainsString('oco-chip--on', $navigationEntry);
+						$this->assertStringContainsString('aria-pressed="false"', $navigationEntry);
 					}
 				}
 			}
@@ -98,14 +91,6 @@ class NavigationTest extends TestCase {
 
 		// Check size of app links
 		$this->assertSame(1, \sizeof($links['apps']));
-		$this->assertStringNotContainsString('data-navigation="files"', $navigationLinks, 'Files app should not be included when there are no other apps.');
-
-		if ($rssToken) {
-			$rssInputField = \strpos($output, 'input id="rssurl"');
-			$this->assertGreaterThan(0, $rssInputField);
-			$endOfInputField = \strpos($output, ' />', $rssInputField);
-
-			$this->assertNotSame(false, \strpos(\substr($output, $rssInputField, $endOfInputField - $rssInputField), $rssToken));
-		}
+		$this->assertStringNotContainsString('data-navigation="files"', $output, 'Files app should not be included when there are no other apps.');
 	}
 }

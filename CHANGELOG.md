@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [3.0.5] - 2026-11-13
+
+### Behoben
+
+- Die Filter der Aktivität stehen als Auswahl über dem Strom statt als zweite Liste in der Seitenleiste; die Seitenleiste bleibt auf jeder Seite gleich.
+- Der RSS-Feed wird in den persönlichen Einstellungen unter Benachrichtigungen eingeschaltet (nicht mehr über einen Knopf „Einstellungen“ in der Seitenleiste).
+- Das Anlegen des Stammordners eines Kontos erscheint nicht mehr als Eintrag im Strom.
+- „und N mehr“ reagiert auf die Leertaste ohne doppelte Auslösung.
+
 ## [3.0.4] - 2026-10-29
 
 ### Behoben

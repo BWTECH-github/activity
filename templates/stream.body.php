@@ -31,9 +31,9 @@ script('activity', [
 style('activity', 'style');
 ?>
 
-<?php $_['appNavigation']->printPage(); ?>
-
 <div id="app-content">
+	<?php $_['appNavigation']->printPage(); ?>
+
 	<div id="emptycontent" class="hidden">
 		<div class="icon-activity"></div>
 		<h2><?php p($l->t('No activity yet')); ?></h2>

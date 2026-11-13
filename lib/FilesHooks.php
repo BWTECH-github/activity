@@ -231,6 +231,11 @@ class FilesHooks {
 			return;
 		}
 
+		// Der Stammordner eines Kontos ist kein Ereignis für den Strom
+		if (\trim($filePath, '/') === '') {
+			return;
+		}
+
 		list($filePath, $uidOwner, $fileId) = $this->getSourcePathAndOwner($filePath);
 		if (!$fileId) {
 			// no owner, possibly deleted or unknown

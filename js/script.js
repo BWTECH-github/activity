@@ -12,7 +12,7 @@ $(function(){
 
 	OCA.Activity.Filter = {
 		filter: undefined,
-		$navigation: $('#app-navigation'),
+		$navigation: $('.activity-filters'),
 
 
 		_onPopState: function(params) {
@@ -28,7 +28,7 @@ $(function(){
 				return;
 			}
 
-			this.$navigation.find('a[data-navigation=' + this.filter + ']').parent().removeClass('active');
+			this.$navigation.find('[data-navigation=' + this.filter + ']').removeClass('oco-chip--on').attr('aria-pressed', 'false');
 			OCA.Activity.InfinitScrolling.firstKnownId = 0;
 			OCA.Activity.InfinitScrolling.lastGivenId = 0;
 
@@ -45,7 +45,7 @@ $(function(){
 			$('#container').attr('aria-busy', 'true');
 			OCA.Activity.InfinitScrolling.ignoreScroll = 0;
 
-			this.$navigation.find('a[data-navigation=' + filter + ']').parent().addClass('active');
+			this.$navigation.find('[data-navigation=' + filter + ']').addClass('oco-chip--on').attr('aria-pressed', 'true');
 
 			OCA.Activity.InfinitScrolling.prefill();
 		}
@@ -315,15 +315,9 @@ $(function(){
 			 * derselbe Aufruf richtig.
 			 */
 			$element.find('.activity-more-link')
-				// Ein Anker, der wie ein Schalter wirkt, braucht Rolle und
-				// Leertaste; Enter kommt beim Anker von selbst.
+				// Ein Anker, der wie ein Schalter wirkt, braucht die Rolle; die
+				// Leertaste behandelt der Kern.
 				.attr('role', 'button')
-				.on('keydown', function(e) {
-					if (e.key === ' ' || e.key === 'Spacebar' || e.keyCode === 32) {
-						e.preventDefault();
-						$(this).trigger('click');
-					}
-				})
 				.on('click', function(e) {
 					// Ohne preventDefault haengt der Browser ein '#' an die
 					// Adresse und legt einen Verlaufseintrag an - der
@@ -353,7 +347,7 @@ $(function(){
 	OCA.Activity.Filter.setFilter(OCA.Activity.InfinitScrolling.$container.attr('data-activity-filter'));
 	OCA.Activity.InfinitScrolling.$content.on('scroll', _.bind(OCA.Activity.InfinitScrolling.onScroll, OCA.Activity.InfinitScrolling));
 
-	OCA.Activity.Filter.$navigation.find('a[data-navigation]').on('click', function (event) {
+	OCA.Activity.Filter.$navigation.find('[data-navigation]').on('click', function (event) {
 		var filter = $(this).attr('data-navigation');
 		if (filter !== OCA.Activity.Filter.filter) {
 			OC.Util.History.pushState({
@@ -363,20 +357,4 @@ $(function(){
 		OCA.Activity.Filter.setFilter(filter);
 		event.preventDefault();
 	});
-
-	$('#enable_rss').change(function () {
-		if (this.checked) {
-			$('#rssurl').removeClass('hidden');
-		} else {
-			$('#rssurl').addClass('hidden');
-		}
-		$.post(OC.generateUrl('/apps/activity/settings/feed'), 'enable=' + this.checked, function(response) {
-			$('#rssurl').val(response.data.rsslink);
-		});
-	});
-
-	$('#rssurl').on('click', function () {
-		$('#rssurl').select();
-	});
 });
-
