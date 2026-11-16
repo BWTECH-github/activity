@@ -127,4 +127,18 @@ class ParameterTest extends TestCase {
 
 		$this->assertSame('formatted()', $instance->format());
 	}
+
+	/**
+	 * Ein fehlender Wert (null) wird als leere Zeichenkette formatiert statt mit TypeError abzubrechen
+	 */
+	public function testFormatNullParameter() {
+		$instance = $this->getParameter(null);
+
+		$this->formatter->expects($this->once())
+			->method('format')
+			->with($this->event, '')
+			->willReturn('formatted()');
+
+		$this->assertSame('formatted()', $instance->format());
+	}
 }
