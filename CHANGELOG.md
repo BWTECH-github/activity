@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [2.8.6] - 2026-11-16
+
+### Fixed
+
+- Ein Ereignis ohne Parameterwert bricht den Versand der Aktivitäts-Mails
+  nicht mehr für den ganzen Stapel ab (TypeError in `BaseFormatter::format()`).
+
 ## [2.8.5] - 2026-09-26
 
 ### Added
