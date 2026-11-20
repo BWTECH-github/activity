@@ -80,6 +80,8 @@ class Parameter implements IParameter {
 	 * @return string The formatted parameter
 	 */
 	public function format() {
-		return $this->formatter->format($this->event, $this->parameter);
+		// Fehlender Wert (null) wird leer formatiert: die Formatter verlangen string|array, sonst bricht
+		// der Mailversand der Aktivitäten für den ganzen Stapel mit einem TypeError ab
+		return $this->formatter->format($this->event, $this->parameter ?? '');
 	}
 }
