@@ -132,6 +132,21 @@ $(function(){
 			var numActivities = data.length;
 
 			if (numActivities > 0) {
+				// Der Ladekringel steht vor der ersten Seite oben und rückt mit
+				// den Einträgen ans Ende. Sichtbar verschoben zählte das als
+				// Layout-Verschiebung (0,08 bei 1440 px). Er verschwindet für ein
+				// Bild und erscheint unten neu, solange noch etwas nachkommt.
+				var $laden = $('#loading_activities');
+				if (this.$container.children().length === 0 && !$laden.hasClass('hidden')) {
+					$laden.addClass('hidden');
+					window.requestAnimationFrame(function () {
+						window.requestAnimationFrame(function () {
+							if ($('#no_more_activities').hasClass('hidden') && $('#emptycontent').hasClass('hidden')) {
+								$laden.removeClass('hidden');
+							}
+						});
+					});
+				}
 				for (var i = 0; i < data.length; i++) {
 					var activity = data[i];
 					this.appendActivityToContainer(activity);
