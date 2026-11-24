@@ -34,7 +34,8 @@ style('activity', 'settings');
 					</button>
 				</th>
 				<?php endforeach; ?>
-				<th><span id="activity_notifications_msg" class="msg"></span></th>
+				<?php /* td statt th: die Zelle trägt nur die Speichermeldung, keinen Spaltenkopf */ ?>
+				<td><span id="activity_notifications_msg" class="msg"></span></td>
 			</tr>
 		</thead>
 		<tbody>
